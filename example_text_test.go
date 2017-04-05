@@ -30,7 +30,7 @@ func Example() {
 	flags := flag.FlagSet{}
 
 	var hx hexString
-	flags.Var(flagtext.VarText(&hx), "hex", "hex string")
+	flags.Var(flagtext.Text(&hx), "hex", "hex string")
 
 	if err := flags.Parse([]string{"-hex", "1234"}); err != nil {
 		fmt.Println(err)

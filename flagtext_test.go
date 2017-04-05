@@ -8,7 +8,7 @@ import (
 	"flag"
 )
 
-var _ flag.Getter = (*varText)(nil)
+var _ flag.Getter = (*textValue)(nil)
 
 type hexString []byte
 
@@ -31,7 +31,7 @@ func (h *hexString) UnmarshalText(text []byte) error {
 func TestVarText(t *testing.T) {
 	flags := flag.FlagSet{}
 	var hx hexString
-	flags.Var(VarText(&hx), "hex", "hex string")
+	flags.Var(Text(&hx), "hex", "hex string")
 	if err := flags.Parse([]string{"-hex", "1234"}); err != nil {
 		t.Fatalf("unexpected error: %s", err)
 	}
