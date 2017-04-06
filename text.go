@@ -33,10 +33,6 @@ func Text(v interface {
 	MarshalText() (text []byte, err error)
 	// encoding.TextUnmarshaler
 	UnmarshalText(text []byte) error
-}) interface {
-	String() string
-	Set(string) error
-	Get() interface{}
-} {
+}) Value {
 	return &textValue{v}
 }
