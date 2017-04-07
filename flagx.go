@@ -1,4 +1,4 @@
-package flagtext
+package flagx
 
 // Value is like flag.Getter
 type Value interface {

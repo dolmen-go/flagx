@@ -1,4 +1,4 @@
-package flagtext
+package flagx
 
 type textValue struct {
 	value interface {

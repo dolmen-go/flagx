@@ -1,4 +1,4 @@
-package flagtext
+package flagx
 
 type Encoding interface {
 	DecodeString(string) ([]byte, error)

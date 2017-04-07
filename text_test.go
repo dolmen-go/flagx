@@ -1,4 +1,4 @@
-package flagtext
+package flagx
 
 import (
 	"testing"

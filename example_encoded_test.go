@@ -1,11 +1,11 @@
-package flagtext_test
+package flagx_test
 
 import (
 	"encoding/base64"
 	"flag"
 	"fmt"
 
-	"github.com/dolmen-go/flagtext"
+	"github.com/dolmen-go/flagx"
 )
 
 func ExampleEncoded() {
@@ -13,7 +13,7 @@ func ExampleEncoded() {
 
 	var bin []byte
 	// Bind parameter "-base64" to value bin above, with Base64 decoding
-	flags.Var(flagtext.Encoded(&bin, base64.RawStdEncoding), "base64", "hex string")
+	flags.Var(flagx.Encoded(&bin, base64.RawStdEncoding), "base64", "hex string")
 
 	if err := flags.Parse([]string{"-base64", "aGVsbG8K"}); err != nil {
 		fmt.Println(err)

@@ -1,11 +1,11 @@
-package flagtext_test
+package flagx_test
 
 import (
 	"encoding/hex"
 	"flag"
 	"fmt"
 
-	"github.com/dolmen-go/flagtext"
+	"github.com/dolmen-go/flagx"
 )
 
 type hexString []byte
@@ -30,7 +30,7 @@ func Example() {
 	flags := flag.FlagSet{}
 
 	var hx hexString
-	flags.Var(flagtext.Text(&hx), "hex", "hex string")
+	flags.Var(flagx.Text(&hx), "hex", "hex string")
 
 	if err := flags.Parse([]string{"-hex", "1234"}); err != nil {
 		fmt.Println(err)
