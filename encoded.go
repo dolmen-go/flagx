@@ -1,5 +1,6 @@
 package flagx
 
+// Encoding is an interface implemented by stdlib encoding/base{32,64}.Encoding
 type Encoding interface {
 	DecodeString(string) ([]byte, error)
 	EncodeToString(src []byte) string
@@ -23,6 +24,7 @@ func (v *encodedValue) Get() interface{} {
 	return *v.value
 }
 
+// Encoded wraps a reference to a []byte as a flag.Value
 func Encoded(value *[]byte, encoding Encoding) Value {
 	return &encodedValue{value: value, encoding: encoding}
 }
