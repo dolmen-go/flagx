@@ -8,7 +8,7 @@ import (
 	"github.com/dolmen-go/flagx"
 )
 
-func ExampleEncoded() {
+func ExampleEncoded_base64() {
 	flags := flag.FlagSet{}
 
 	var bin []byte
