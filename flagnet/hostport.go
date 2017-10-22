@@ -22,9 +22,11 @@ func (h hostPort) String() string {
 func (h hostPort) Set(str string) (err error) {
 	host, _, err := net.SplitHostPort(str)
 	if err != nil {
-		if h.DefaultPort >= 0 {
-			host, _, err = net.SplitHostPort(str + ":" + strconv.Itoa(h.DefaultPort))
+		if h.DefaultPort < 0 {
+			return fmt.Errorf("%q: %s", str, err)
 		}
+		str = str + ":" + strconv.Itoa(h.DefaultPort)
+		host, _, err = net.SplitHostPort(str)
 		if err != nil {
 			return fmt.Errorf("%q: %s", str, err)
 		}
