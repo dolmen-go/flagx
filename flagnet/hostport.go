@@ -25,6 +25,7 @@ func (h hostPort) Set(str string) (err error) {
 		if h.DefaultPort < 0 {
 			return fmt.Errorf("%q: %s", str, err)
 		}
+		// If the port is missing, append it
 		str = str + ":" + strconv.Itoa(h.DefaultPort)
 		host, _, err = net.SplitHostPort(str)
 		if err != nil {
