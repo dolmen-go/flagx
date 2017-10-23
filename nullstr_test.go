@@ -18,9 +18,11 @@ func TestNullString(t *testing.T) {
 			return flagx.NullString(&value), &value
 		}}
 
-	tester.Check([]string{}, (*string)(nil))
-	tester.Check([]string{"a"}, (*string)(nil))
-	tester.Check([]string{"-value", "x"}, ptr.String("x"))
-	tester.Check([]string{"-value", ""}, ptr.String(""))
-	tester.Check([]string{"-value", "a", "-value", "b"}, ptr.String("b"))
+	tester.CheckParse([]string{}, (*string)(nil))
+	tester.CheckParse([]string{"a"}, (*string)(nil))
+	tester.CheckParse([]string{"-value", "x"}, ptr.String("x"))
+	tester.CheckParse([]string{"-value", ""}, ptr.String(""))
+	tester.CheckParse([]string{"-value", "a", "-value", "b"}, ptr.String("b"))
+
+	tester.CheckHelp()
 }
