@@ -44,6 +44,13 @@ func (tester *varTester) CheckParse(args []string, expected interface{}) {
 	if !reflect.DeepEqual(value, expected) {
 		tester.t.Errorf("got %#v expected %#v", value, expected)
 	}
+	flgVar := flags.Lookup(tester.flagName).Value.(flag.Getter)
+	valueFromFlag := flgVar.Get()
+	if !reflect.DeepEqual(valueFromFlag, expected) {
+		tester.t.Errorf("got %#v expected %#v", valueFromFlag, expected)
+	}
+	_ = flgVar.String()
+
 	if output.Len() > 0 {
 		tester.t.Errorf("Error output:\n%s", output.String())
 	}
