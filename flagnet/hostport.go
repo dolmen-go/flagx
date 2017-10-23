@@ -16,6 +16,10 @@ type hostPort struct {
 }
 
 func (h hostPort) String() string {
+	if h.HostPort == nil {
+		// When called by flag.isZeroValue
+		return ""
+	}
 	return *h.HostPort
 }
 
