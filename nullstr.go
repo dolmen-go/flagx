@@ -11,6 +11,10 @@ type nullStr struct {
 }
 
 func (ns nullStr) String() string {
+	if ns.Pointer == nil {
+		// When called by flag.isZeroValue
+		return ""
+	}
 	if *ns.Pointer == nil {
 		return ""
 	}
