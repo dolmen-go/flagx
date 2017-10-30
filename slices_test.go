@@ -2,20 +2,13 @@ package flagx_test
 
 import (
 	"flag"
+	"strconv"
 	"testing"
 
 	"github.com/dolmen-go/flagx"
 )
 
-func TestIntSlice(t *testing.T) {
-	tester := varTester{
-		t:        t,
-		flagName: "ints",
-		buildVar: func() (flag.Getter, interface{}) {
-			var value []int
-			return flagx.IntSlice{&value}, &value
-		}}
-
+func checkIntSlice(tester *varTester) {
 	tester.CheckParse([]string{}, ([]int)(nil))
 	tester.CheckParse([]string{"a"}, ([]int)(nil))
 	tester.CheckParse([]string{"-ints", "0"}, []int{0})
@@ -30,4 +23,30 @@ func TestIntSlice(t *testing.T) {
 	tester.CheckParse([]string{"-ints", "-0x80000000"}, []int{-0x80000000})
 
 	tester.CheckHelp()
+}
+
+func TestIntSlice(t *testing.T) {
+	checkIntSlice(&varTester{
+		t:        t,
+		flagName: "ints",
+		buildVar: func() (flag.Getter, interface{}) {
+			var value []int
+			return flagx.IntSlice{&value}, &value
+		}})
+}
+
+func TestSlice(t *testing.T) {
+	checkIntSlice(&varTester{
+		t:        t,
+		flagName: "ints",
+		buildVar: func() (flag.Getter, interface{}) {
+			var value []int
+			return flagx.Slice(&value, ",", func(s string) (interface{}, error) {
+				n, err := strconv.ParseInt(s, 0, 0)
+				if err != nil {
+					return nil, nil
+				}
+				return int(n), nil
+			}), &value
+		}})
 }
