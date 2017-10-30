@@ -29,11 +29,11 @@ func (is IntSlice) Set(s string) (err error) {
 	str := strings.Split(s, ",")
 	for _, s := range str {
 		s = strings.TrimSpace(s)
-		n, err := strconv.Atoi(s)
+		n, err := strconv.ParseInt(s, 0, 0)
 		if err != nil {
 			return fmt.Errorf("%q: %s", s, err)
 		}
-		*is.Slice = append(*is.Slice, n)
+		*is.Slice = append(*is.Slice, int(n))
 	}
 	return nil
 }
