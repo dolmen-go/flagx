@@ -23,7 +23,8 @@ type varTester struct {
 
 func (tester *varTester) CheckParse(args []string, expected interface{}) {
 	flagValue, pvalue := tester.buildVar()
-	if reflect.TypeOf(pvalue).Kind() != reflect.Ptr {
+	kind := reflect.TypeOf(pvalue).Kind()
+	if kind != reflect.Ptr && kind != reflect.Map {
 		panic("varBuilder must return a pointer")
 	}
 
@@ -40,7 +41,13 @@ func (tester *varTester) CheckParse(args []string, expected interface{}) {
 		tester.t.Fatalf("Unexpected error: %s\nError output:\n%s", err, output.String())
 	}
 	// Dereference pvalue
-	value := reflect.ValueOf(pvalue).Elem().Interface()
+	var value interface{}
+	switch kind {
+	case reflect.Ptr:
+		value = reflect.ValueOf(pvalue).Elem().Interface()
+	case reflect.Map:
+		value = pvalue
+	}
 	if !reflect.DeepEqual(value, expected) {
 		tester.t.Errorf("got %#v expected %#v", value, expected)
 	}
