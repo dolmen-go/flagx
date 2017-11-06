@@ -14,6 +14,12 @@ func checkIntMap(tester *varTester) {
 	tester.CheckParse([]string{"-kv", "a=0", "-kv", "b=1"}, map[string]int{"a": 0, "b": 1})
 }
 
+func checkStringMap(tester *varTester) {
+	tester.CheckParse([]string{}, map[string]string{})
+	tester.CheckParse([]string{"-kv", "a=b"}, map[string]string{"a": "b"})
+	tester.CheckParse([]string{"-kv", "a=b", "-kv", "b=a"}, map[string]string{"a": "b", "b": "a"})
+}
+
 func TestMap(t *testing.T) {
 	checkIntMap(&varTester{
 		t:        t,
@@ -27,5 +33,21 @@ func TestMap(t *testing.T) {
 				}
 				return int(n), nil
 			}), m
+		}})
+	checkStringMap(&varTester{
+		t:        t,
+		flagName: "kv",
+		buildVar: func() (flag.Getter, interface{}) {
+			m := make(map[string]string)
+			return flagx.Map(m, func(s string) (interface{}, error) {
+				return s, nil
+			}), m
+		}})
+	checkStringMap(&varTester{
+		t:        t,
+		flagName: "kv",
+		buildVar: func() (flag.Getter, interface{}) {
+			m := make(map[string]string)
+			return flagx.Map(m, nil), m
 		}})
 }

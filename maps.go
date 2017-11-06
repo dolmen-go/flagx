@@ -33,9 +33,15 @@ func (m *stringMap) Set(s string) error {
 		return fmt.Errorf("%q: '=' expected")
 	}
 	key := s[:i]
-	value, err := m.Parse(s[i+1:])
-	if err != nil {
-		return err
+	var value interface{}
+	if m.Parse == nil {
+		value = s[i+1:]
+	} else {
+		var err error
+		value, err = m.Parse(s[i+1:])
+		if err != nil {
+			return err
+		}
 	}
 	m.Map.SetMapIndex(reflect.ValueOf(key), reflect.ValueOf(value))
 	return nil

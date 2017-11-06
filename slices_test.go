@@ -25,6 +25,14 @@ func checkIntSlice(tester *varTester) {
 	tester.CheckHelp()
 }
 
+func checkStringSlice(tester *varTester) {
+	tester.CheckParse([]string{}, ([]string)(nil))
+	tester.CheckParse([]string{"a"}, ([]string)(nil))
+	tester.CheckParse([]string{"-strings", "a"}, []string{"a"})
+	tester.CheckParse([]string{"-strings", "a,b"}, []string{"a", "b"})
+	tester.CheckParse([]string{"-strings", "a", "-strings", "b"}, []string{"a", "b"})
+}
+
 func TestIntSlice(t *testing.T) {
 	checkIntSlice(&varTester{
 		t:        t,
@@ -48,5 +56,21 @@ func TestSlice(t *testing.T) {
 				}
 				return int(n), nil
 			}), &value
+		}})
+	checkStringSlice(&varTester{
+		t:        t,
+		flagName: "strings",
+		buildVar: func() (flag.Getter, interface{}) {
+			var value []string
+			return flagx.Slice(&value, ",", func(s string) (interface{}, error) {
+				return s, nil
+			}), &value
+		}})
+	checkStringSlice(&varTester{
+		t:        t,
+		flagName: "strings",
+		buildVar: func() (flag.Getter, interface{}) {
+			var value []string
+			return flagx.Slice(&value, ",", nil), &value
 		}})
 }

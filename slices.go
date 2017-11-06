@@ -71,9 +71,15 @@ func (sl *slice) String() string {
 }
 
 func (sl *slice) appnd(s string) error {
-	v, err := sl.Parse(s)
-	if err != nil {
-		return err
+	var v interface{}
+	if sl.Parse == nil {
+		v = s
+	} else {
+		var err error
+		v, err = sl.Parse(s)
+		if err != nil {
+			return err
+		}
 	}
 	sl.Slice.Elem().Set(reflect.Append(sl.Slice.Elem(), reflect.ValueOf(v)))
 	return nil
