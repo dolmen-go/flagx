@@ -62,7 +62,7 @@ func (tv *traceVar) done() {
 //
 // When tracing is enabled, a handler for SIGINT (^C) is also registered to properly
 // stop tracing and close the file.
-func Register(flags *flag.FlagSet, flagName string, usage string) func() {
+func Register(flags *flag.FlagSet, flagName string, usage string) (stopTracing func()) {
 	tv := &traceVar{}
 	flags.Var(tv, flagName, usage)
 	return tv.done
