@@ -78,7 +78,7 @@ func (sl *slice) appnd(s string) error {
 		var err error
 		v, err = sl.Parse(s)
 		if err != nil {
-			return err
+			return fmt.Errorf("%q: %s", s, err)
 		}
 	}
 	sl.Slice.Elem().Set(reflect.Append(sl.Slice.Elem(), reflect.ValueOf(v)))
