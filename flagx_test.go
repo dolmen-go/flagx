@@ -23,9 +23,12 @@ type varTester struct {
 
 func (tester *varTester) CheckParse(args []string, expected interface{}) {
 	flagValue, pvalue := tester.buildVar()
-	kind := reflect.TypeOf(pvalue).Kind()
-	if kind != reflect.Ptr && kind != reflect.Map {
-		panic("varBuilder must return a pointer")
+	var kind reflect.Kind
+	if pvalue != nil {
+		kind = reflect.TypeOf(pvalue).Kind()
+		if kind != reflect.Ptr && kind != reflect.Map {
+			panic("varBuilder must return a pointer")
+		}
 	}
 
 	flags := flag.NewFlagSet("Test", flag.ContinueOnError)
@@ -65,7 +68,7 @@ func (tester *varTester) CheckParse(args []string, expected interface{}) {
 
 func (tester *varTester) CheckHelp() {
 	flagValue, pvalue := tester.buildVar()
-	if reflect.TypeOf(pvalue).Kind() != reflect.Ptr {
+	if pvalue != nil && reflect.TypeOf(pvalue).Kind() != reflect.Ptr {
 		panic("varBuilder must return a pointer")
 	}
 
@@ -86,4 +89,23 @@ func (tester *varTester) CheckHelp() {
 	} else {
 		tester.t.Logf("Help message:\n%s", out)
 	}
+}
+
+var _ flag.Getter = flagx.Dummy{}
+
+func TestDummy(t *testing.T) {
+	tester := varTester{
+		t:        t,
+		flagName: "dummy",
+		buildVar: func() (flag.Getter, interface{}) {
+			return flagx.Dummy{}, nil
+		}}
+
+	tester.CheckParse([]string{}, nil)
+	tester.CheckParse([]string{"a"}, nil)
+	tester.CheckParse([]string{"-dummy", "x"}, nil)
+	tester.CheckParse([]string{"-dummy", ""}, nil)
+	tester.CheckParse([]string{"-dummy", "a", "-dummy", "b"}, nil)
+
+	tester.CheckHelp()
 }
