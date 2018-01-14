@@ -30,7 +30,7 @@ func (m *stringMap) String() string {
 func (m *stringMap) Set(s string) error {
 	i := strings.IndexByte(s, '=')
 	if i < 0 {
-		return fmt.Errorf("%q: '=' expected")
+		return fmt.Errorf("%q: '=' expected", s)
 	}
 	key := s[:i]
 	var value interface{}
