@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 	"reflect"
 )
 
@@ -22,8 +23,9 @@ type Decoder interface {
 type DecoderBuilder func(r io.Reader) Decoder
 
 type file struct {
-	flagset *flag.FlagSet
-	decoder DecoderBuilder
+	flagset    *flag.FlagSet
+	decoder    DecoderBuilder
+	contextDir []string
 }
 
 func File(flagset *flag.FlagSet, decoder DecoderBuilder) flag.Value {
@@ -35,19 +37,40 @@ func File(flagset *flag.FlagSet, decoder DecoderBuilder) flag.Value {
 
 func (file) String() string { return "" }
 
-func (f *file) Set(filepath string) error {
-	r, err := os.Open(filepath)
+func (f *file) Set(path string) error {
+	if !filepath.IsAbs(path) {
+		var ctxDir string
+		if len(f.contextDir) == 0 {
+			var e error
+			ctxDir, e = os.Getwd()
+			if e != nil {
+				return e
+			}
+		} else {
+			ctxDir = f.contextDir[len(f.contextDir)-1]
+		}
+		path = filepath.Join(ctxDir, path)
+	}
+
+	r, err := os.Open(path)
 	if err != nil {
 		// TODO return a structured error to allow l18n
-		return fmt.Errorf("%s: %s", filepath, err)
+		return fmt.Errorf("%s: %s", path, err)
 	}
 	dec := f.decoder(r)
 	var v interface{}
 	err = dec.Decode(&v)
 	if err != nil {
 		// TODO return a structured error to allow l18n
-		return fmt.Errorf("%s: can't decode: %s", filepath, err)
+		return fmt.Errorf("%s: can't decode: %s", path, err)
 	}
+
+	// push directory of the path
+	f.contextDir = append(f.contextDir, filepath.Dir(path))
+	defer func() {
+		// pop contextDir
+		f.contextDir = f.contextDir[:len(f.contextDir)-1]
+	}()
 
 	switch v := v.(type) {
 	case []interface{}:
@@ -66,7 +89,7 @@ func (f *file) Set(filepath string) error {
 		return fmt.Errorf("unexpected type %T", v)
 	}
 	if err != nil {
-		err = fmt.Errorf("%s#%s", filepath, err)
+		err = fmt.Errorf("%s#%s", path, err)
 	}
 	return err
 }
