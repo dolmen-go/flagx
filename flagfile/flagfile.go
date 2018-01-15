@@ -34,6 +34,16 @@ type file struct {
 	contextDir []string
 }
 
+// File allows to define a command-line flag that gives a path to a structured
+// file whose content will be expanded as command-line arguments and injected into flagset.
+//
+// The structured data may be:
+// - an array of strings given to flagset.Parse
+// - a map where keys are argument names (without leading '-') and keys are values
+//   or arrays of values
+//
+// This flag is reentrant, so the file may refer to (include) other files by reusing the
+// same flag.
 func File(flagset FlagSet, decoder DecoderBuilder) flag.Value {
 	return &file{
 		flagset: flagset,
@@ -43,6 +53,10 @@ func File(flagset FlagSet, decoder DecoderBuilder) flag.Value {
 
 func (file) String() string { return "" }
 
+// Set loads the given file, decodes it and interprets
+// its structured data as a list of arguments.
+//
+// Set is part of the flag.Value interface.
 func (f *file) Set(path string) error {
 	if !filepath.IsAbs(path) {
 		var ctxDir string
