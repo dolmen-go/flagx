@@ -4,9 +4,11 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"net/url"
 	"os"
 	"path/filepath"
 	"reflect"
+	"strings"
 )
 
 // FlagSet is a subset of methods of *flag.FlagSet
@@ -15,22 +17,17 @@ type FlagSet interface {
 	Lookup(name string) *flag.Flag
 }
 
-// Decoder can decode a stream of bytes into structured values.
-// The root value for flagfile.File must be of type:
-//     []string
-//     []interface{}
-//     map[string]interface{}
+// Loader loads structured data from r.
+// The fragment may point to a partial of the content.
 //
-// Example: encoding/json.Decoder
-type Decoder interface {
-	Decode(interface{}) error
-}
-
-type DecoderBuilder func(r io.Reader) Decoder
+// The output is expected to be:
+// - a slice of strings
+// - a map where keys are strings and valuer are either string or slice of strings
+type Loader func(r io.Reader, fragment string) (interface{}, error)
 
 type file struct {
 	flagset    FlagSet
-	decoder    DecoderBuilder
+	load       Loader
 	contextDir []string
 }
 
@@ -44,10 +41,10 @@ type file struct {
 //
 // This flag is reentrant, so the file may refer to (include) other files by reusing the
 // same flag.
-func File(flagset FlagSet, decoder DecoderBuilder) flag.Value {
+func File(flagset FlagSet, loader Loader) flag.Value {
 	return &file{
 		flagset: flagset,
-		decoder: decoder,
+		load:    loader,
 	}
 }
 
@@ -58,6 +55,17 @@ func (file) String() string { return "" }
 //
 // Set is part of the flag.Value interface.
 func (f *file) Set(path string) error {
+	var fragment string
+	if i := strings.IndexByte(path, '#'); i > 0 {
+		var err error
+		if fragment, err = url.QueryUnescape(path[i+1:]); err != nil {
+			return fmt.Errorf("invalid fragment %q", path[i+1:])
+		}
+		path = path[:i]
+	}
+
+	// Resolve the path to an absolute path using either the path of the enclosing file
+	// or the current working directory.
 	if !filepath.IsAbs(path) {
 		var ctxDir string
 		if len(f.contextDir) == 0 {
@@ -78,13 +86,10 @@ func (f *file) Set(path string) error {
 		return fmt.Errorf("%s: %s", path, err)
 	}
 
-	v, err := func(r *os.File) (interface{}, error) {
+	v, err := func(r *os.File, load Loader) (interface{}, error) {
 		defer r.Close()
-		dec := f.decoder(r)
-		var v interface{}
-		err = dec.Decode(&v)
-		return v, err
-	}(r)
+		return load(r, fragment)
+	}(r, f.load)
 	if err != nil {
 		// TODO return a structured error to allow l18n
 		return fmt.Errorf("%s: can't decode: %s", path, err)
