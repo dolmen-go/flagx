@@ -9,6 +9,12 @@ import (
 	"reflect"
 )
 
+// FlagSet is a subset of methods of *flag.FlagSet
+type FlagSet interface {
+	Parse([]string) error
+	Lookup(name string) *flag.Flag
+}
+
 // Decoder can decode a stream of bytes into structured values.
 // The root value for flagfile.File must be of type:
 //     []string
@@ -23,12 +29,12 @@ type Decoder interface {
 type DecoderBuilder func(r io.Reader) Decoder
 
 type file struct {
-	flagset    *flag.FlagSet
+	flagset    FlagSet
 	decoder    DecoderBuilder
 	contextDir []string
 }
 
-func File(flagset *flag.FlagSet, decoder DecoderBuilder) flag.Value {
+func File(flagset FlagSet, decoder DecoderBuilder) flag.Value {
 	return &file{
 		flagset: flagset,
 		decoder: decoder,
@@ -99,7 +105,7 @@ func (f *file) Set(path string) error {
 	return err
 }
 
-func parseObject(flagset *flag.FlagSet, m map[string]interface{}) error {
+func parseObject(flagset FlagSet, m map[string]interface{}) error {
 	for k, v := range m {
 		f := flagset.Lookup(k)
 		if f == nil {
