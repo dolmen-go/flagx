@@ -57,9 +57,14 @@ func (f *file) Set(path string) error {
 		// TODO return a structured error to allow l18n
 		return fmt.Errorf("%s: %s", path, err)
 	}
-	dec := f.decoder(r)
-	var v interface{}
-	err = dec.Decode(&v)
+
+	v, err := func(r *os.File) (interface{}, error) {
+		defer r.Close()
+		dec := f.decoder(r)
+		var v interface{}
+		err = dec.Decode(&v)
+		return v, err
+	}(r)
 	if err != nil {
 		// TODO return a structured error to allow l18n
 		return fmt.Errorf("%s: can't decode: %s", path, err)
