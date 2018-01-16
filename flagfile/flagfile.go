@@ -14,7 +14,7 @@ import (
 // FlagSet is a subset of methods of *flag.FlagSet
 type FlagSet interface {
 	Parse([]string) error
-	Lookup(name string) *flag.Flag
+	Set(name, value string) error
 }
 
 // Loader loads structured data from r.
@@ -132,17 +132,13 @@ func (f *file) Set(path string) error {
 
 func parseObject(flagset FlagSet, m map[string]interface{}) error {
 	for k, v := range m {
-		f := flagset.Lookup(k)
-		if f == nil {
-			return fmt.Errorf("/%s: unknown flag", k)
-		}
 		var err error
 		switch v := v.(type) {
 		case string:
-			err = f.Value.Set(v)
+			err = flagset.Set(k, v)
 		case []string:
 			for i, v := range v {
-				err = f.Value.Set(v)
+				err = flagset.Set(k, v)
 				if err != nil {
 					return fmt.Errorf("/%s/%d: %s", k, i, err)
 				}
@@ -151,13 +147,13 @@ func parseObject(flagset FlagSet, m map[string]interface{}) error {
 			rv := reflect.ValueOf(v)
 			if rv.Kind() == reflect.Array || rv.Kind() == reflect.Slice {
 				for i := 0; i < rv.Len(); i++ {
-					err = f.Value.Set(fmt.Sprint(rv.Index(i).Interface()))
+					err = flagset.Set(k, fmt.Sprint(rv.Index(i).Interface()))
 					if err != nil {
 						return fmt.Errorf("/%s/%d: %s", k, i, err)
 					}
 				}
 			} else {
-				err = f.Value.Set(fmt.Sprint(v))
+				err = flagset.Set(k, fmt.Sprint(v))
 			}
 		}
 		if err != nil {
