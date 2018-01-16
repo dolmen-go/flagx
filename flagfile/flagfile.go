@@ -103,14 +103,20 @@ func (f *file) Set(path string) error {
 	}()
 
 	switch v := v.(type) {
+	case nil: // NOOP
 	case []interface{}:
+		if len(v) == 0 {
+			break
+		}
 		args := make([]string, 0, len(v))
 		for _, arg := range v {
 			args = append(args, fmt.Sprint(arg))
 		}
 		err = f.flagset.Parse(args)
 	case []string:
-		err = f.flagset.Parse(v)
+		if len(v) > 0 {
+			err = f.flagset.Parse(v)
+		}
 	case map[string]interface{}:
 		err = parseObject(f.flagset, v)
 		// TODO map[string]string
