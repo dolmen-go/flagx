@@ -14,6 +14,7 @@ import (
 // FlagSet is a subset of methods of *flag.FlagSet
 type FlagSet interface {
 	Parse([]string) error
+	Args() []string
 	Set(name, value string) error
 }
 
@@ -112,10 +113,20 @@ func (f *file) Set(path string) error {
 		for _, arg := range v {
 			args = append(args, fmt.Sprint(arg))
 		}
+		remaining := f.flagset.Args()
 		err = f.flagset.Parse(args)
+		if err != nil {
+			return err
+		}
+		err = f.flagset.Parse(remaining)
 	case []string:
 		if len(v) > 0 {
+			remaining := f.flagset.Args()
 			err = f.flagset.Parse(v)
+			if err != nil {
+				return err
+			}
+			err = f.flagset.Parse(remaining)
 		}
 	case map[string]interface{}:
 		err = parseObject(f.flagset, v)
