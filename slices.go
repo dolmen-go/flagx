@@ -44,8 +44,17 @@ func (is IntSlice) Get() interface{} {
 }
 
 // Slice wraps any pointer to any slice type to expose it
-// as a flag.Value
+// as a flag.Value.
 // Uses reflect.
+//
+// The element type of the slice may implement flag.Value. In that case the
+// Set() method will be called on the target element.
+// The element type of the slice may implement encoding.TextUnmarshaler. In
+// that case the UnmarshalText() method will be called on the target element.
+//
+// The parse func is optional. If it is set and it must return a value
+// assignable to an element of the slice. If the returned value is a bare
+// string, it will pass through Set() or UnmarshalText() if the type implements it (see above).
 func Slice(sl interface{}, separator string, parse func(string) (interface{}, error)) Value {
 	v := reflect.ValueOf(sl)
 	if v.Type().Kind() != reflect.Ptr {
@@ -57,13 +66,49 @@ func Slice(sl interface{}, separator string, parse func(string) (interface{}, er
 	if v.Elem().Kind() != reflect.Slice {
 		panic("non-nil pointer to a slice expected")
 	}
-	return &slice{v, separator, parse}
+	itemType := v.Type().Elem().Elem()
+	setter := setterFor(itemType)
+	if parse == nil {
+		if setter == nil {
+			panic(fmt.Errorf("invalid slice type: %T doesn't implement encoding.TextUnmarshaler or flag.Value", v.Type().Elem()))
+		}
+	} else {
+		if setter == nil {
+			setter = func(target reflect.Value, value string) error {
+				v, err := parse(value)
+				if err != nil {
+					return err
+				}
+				target.Set(reflect.ValueOf(&v).Elem().Elem())
+				return nil
+			}
+		} else {
+			setString := setter
+			setter = func(target reflect.Value, value string) error {
+				v, err := parse(value)
+				if err != nil {
+					return err
+				}
+				if s, isString := v.(string); isString {
+					// Go through Set() or UnmarshalText()
+					setString(target, s)
+				} else {
+					//fmt.Printf("%T -> %s\n", v, target.Type())
+					//fmt.Printf("%s -> %s\n", reflect.ValueOf(&v).Elem().Elem().Type(), target.Type())
+					target.Set(reflect.ValueOf(&v).Elem().Elem())
+				}
+				return nil
+			}
+		}
+	}
+	return &slice{v, itemType, separator, setter}
 }
 
 type slice struct {
 	Slice     reflect.Value
+	itemType  reflect.Type
 	Separator string
-	Parse     func(string) (interface{}, error)
+	setString func(reflect.Value, string) error
 }
 
 func (sl *slice) String() string {
@@ -71,17 +116,12 @@ func (sl *slice) String() string {
 }
 
 func (sl *slice) appnd(s string) error {
-	var v interface{}
-	if sl.Parse == nil {
-		v = s
-	} else {
-		var err error
-		v, err = sl.Parse(s)
-		if err != nil {
-			return fmt.Errorf("%q: %s", s, err)
-		}
+	v := reflect.New(sl.itemType)
+	err := sl.setString(v.Elem(), s)
+	if err != nil {
+		return err
 	}
-	sl.Slice.Elem().Set(reflect.Append(sl.Slice.Elem(), reflect.ValueOf(v)))
+	sl.Slice.Elem().Set(reflect.Append(sl.Slice.Elem(), v.Elem()))
 	return nil
 }
 

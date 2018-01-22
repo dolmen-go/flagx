@@ -43,6 +43,24 @@ func TestIntSlice(t *testing.T) {
 		}})
 }
 
+type txt struct {
+	string
+}
+
+// Store the value, but append '_'
+func (txt *txt) UnmarshalText(b []byte) error {
+	(*txt).string = string(append(b, '_'))
+	return nil
+}
+
+func checkTxtSlice(tester *varTester) {
+	tester.CheckParse([]string{}, ([]txt)(nil))
+	tester.CheckParse([]string{"a"}, ([]txt)(nil))
+	tester.CheckParse([]string{"-txt", "a"}, []txt{{"a_"}})
+	tester.CheckParse([]string{"-txt", "a,b"}, []txt{{"a_"}, {"b_"}})
+	tester.CheckParse([]string{"-txt", "a", "-txt", "b"}, []txt{{"a_"}, {"b_"}})
+}
+
 func TestSlice(t *testing.T) {
 	checkIntSlice(&varTester{
 		t:        t,
@@ -72,5 +90,34 @@ func TestSlice(t *testing.T) {
 		buildVar: func() (flag.Getter, interface{}) {
 			var value []string
 			return flagx.Slice(&value, ",", nil), &value
+		}})
+
+	// Check that UnmarshalText is called
+	checkTxtSlice(&varTester{
+		t:        t,
+		flagName: "txt",
+		buildVar: func() (flag.Getter, interface{}) {
+			var value []txt
+			return flagx.Slice(&value, ",", nil), &value
+		}})
+	// Check that unknown types returned by the parse func are just passed through
+	checkTxtSlice(&varTester{
+		t:        t,
+		flagName: "txt",
+		buildVar: func() (flag.Getter, interface{}) {
+			var value []txt
+			return flagx.Slice(&value, ",", func(s string) (interface{}, error) {
+				return txt{s + "_"}, nil
+			}), &value
+		}})
+	// Check that a string returned by the parse func pass through UnmarshalText
+	checkTxtSlice(&varTester{
+		t:        t,
+		flagName: "txt",
+		buildVar: func() (flag.Getter, interface{}) {
+			var value []txt
+			return flagx.Slice(&value, ",", func(s string) (interface{}, error) {
+				return s, nil
+			}), &value
 		}})
 }
