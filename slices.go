@@ -63,14 +63,15 @@ func Slice(sl interface{}, separator string, parse func(string) (interface{}, er
 	if v.IsNil() {
 		panic("non-nil pointer expected")
 	}
-	if v.Elem().Kind() != reflect.Slice {
+	v = v.Elem() // v now wraps the slice
+	if v.Kind() != reflect.Slice {
 		panic("non-nil pointer to a slice expected")
 	}
-	itemType := v.Type().Elem().Elem()
+	itemType := v.Type().Elem()
 	setter := setterFor(itemType)
 	if parse == nil {
 		if setter == nil {
-			panic(fmt.Errorf("invalid slice type: %T doesn't implement encoding.TextUnmarshaler or flag.Value", v.Type().Elem()))
+			panic(fmt.Errorf("invalid slice type: %s doesn't implement encoding.TextUnmarshaler or flag.Value", v.Type()))
 		}
 	} else {
 		if setter == nil {
@@ -105,9 +106,9 @@ func Slice(sl interface{}, separator string, parse func(string) (interface{}, er
 }
 
 type slice struct {
-	Slice     reflect.Value
+	slice     reflect.Value
 	itemType  reflect.Type
-	Separator string
+	separator string
 	setString func(reflect.Value, string) error
 }
 
@@ -121,13 +122,13 @@ func (sl *slice) appnd(s string) error {
 	if err != nil {
 		return err
 	}
-	sl.Slice.Elem().Set(reflect.Append(sl.Slice.Elem(), v.Elem()))
+	sl.slice.Set(reflect.Append(sl.slice, v.Elem()))
 	return nil
 }
 
 func (sl *slice) Set(s string) error {
-	if sl.Separator != "" {
-		for _, item := range strings.Split(s, sl.Separator) {
+	if len(sl.separator) != 0 {
+		for _, item := range strings.Split(s, sl.separator) {
 			if err := sl.appnd(item); err != nil {
 				return err
 			}
@@ -138,5 +139,5 @@ func (sl *slice) Set(s string) error {
 }
 
 func (sl *slice) Get() interface{} {
-	return sl.Slice.Elem().Interface()
+	return sl.slice.Interface()
 }
