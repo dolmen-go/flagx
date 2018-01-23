@@ -35,6 +35,9 @@ func Map(m interface{}, parseValue func(string) (interface{}, error)) Value {
 		if set == nil {
 			panic(fmt.Errorf("invalid slice type: %s doesn't implement encoding.TextUnmarshaler or flag.Value", v.Type()))
 		}
+		if valueType.Kind() == reflect.Interface {
+			panic("a parse function must be provided to build a concrete value")
+		}
 		buildValue = func(value string) (reflect.Value, error) {
 			v := reflect.New(valueType).Elem()
 			return v, set(v, value)

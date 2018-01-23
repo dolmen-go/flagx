@@ -72,6 +72,9 @@ func Slice(sl interface{}, separator string, parse func(string) (interface{}, er
 		if setter == nil {
 			panic(fmt.Errorf("invalid slice type: %s doesn't implement encoding.TextUnmarshaler or flag.Value", v.Type()))
 		}
+		if itemType.Kind() == reflect.Interface {
+			panic("a parse function must be provided to build a concrete value")
+		}
 	} else {
 		if setter == nil {
 			setter = func(target reflect.Value, value string) error {
