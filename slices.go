@@ -43,18 +43,17 @@ func (is IntSlice) Get() interface{} {
 	return *is.Slice
 }
 
-// Slice wraps any pointer to any slice type to expose it
-// as a flag.Value.
-// Uses reflect.
+// Slice wraps any pointer to a slice to expose it as a flag.Value.
 //
 // The element type of the slice may implement flag.Value. In that case the
 // Set() method will be called on the target element.
 // The element type of the slice may implement encoding.TextUnmarshaler. In
 // that case the UnmarshalText() method will be called on the target element.
 //
-// The parse func is optional. If it is set and it must return a value
+// The parse func is optional. If it is set, it must return a value
 // assignable to an element of the slice. If the returned value is a bare
-// string, it will pass through Set() or UnmarshalText() if the type implements it (see above).
+// string, it will pass through Set() or UnmarshalText() if the type implements
+// it (see above).
 func Slice(sl interface{}, separator string, parse func(string) (interface{}, error)) Value {
 	v := reflect.ValueOf(sl)
 	if v.Type().Kind() != reflect.Ptr {
