@@ -79,6 +79,11 @@ func Slice(sl interface{}, separator string, parse func(string) (interface{}, er
 				if err != nil {
 					return err
 				}
+				// FIXME This need more testing!
+				if itemType.Kind() == reflect.Interface {
+					target.Set(reflect.ValueOf(&v).Elem())
+					return nil
+				}
 				target.Set(reflect.ValueOf(&v).Elem().Elem())
 				return nil
 			}

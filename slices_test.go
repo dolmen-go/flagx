@@ -1,6 +1,7 @@
 package flagx_test
 
 import (
+	"encoding/json"
 	"flag"
 	"strconv"
 	"testing"
@@ -59,6 +60,14 @@ func checkTxtSlice(tester *varTester) {
 	tester.CheckParse([]string{"-txt", "a"}, []txt{{"a_"}})
 	tester.CheckParse([]string{"-txt", "a,b"}, []txt{{"a_"}, {"b_"}})
 	tester.CheckParse([]string{"-txt", "a", "-txt", "b"}, []txt{{"a_"}, {"b_"}})
+}
+
+func checkJSONSlice(tester *varTester) {
+	tester.CheckParse([]string{}, ([]interface{})(nil))
+	tester.CheckParse(
+		[]string{"-json", "123", "-json", "null", "-json", `"a"`, "-json", `{}`},
+		[]interface{}{123.0, nil, "a", map[string]interface{}{}},
+	)
 }
 
 func TestSlice(t *testing.T) {
@@ -120,4 +129,20 @@ func TestSlice(t *testing.T) {
 				return s, nil
 			}), &value
 		}})
+
+	checkJSONSlice(&varTester{
+		t:        t,
+		flagName: "json",
+		buildVar: func() (flag.Getter, interface{}) {
+			var flagValue []interface{}
+			return flagx.Slice(&flagValue, "", func(s string) (interface{}, error) {
+				var v interface{}
+				if err := json.Unmarshal([]byte(s), &v); err != nil {
+					return nil, err
+				}
+				return v, nil
+			}), &flagValue
+		}})
+
+	// TODO test []encoding.TextUnmarshaler
 }
