@@ -3,6 +3,7 @@ package flagx_test
 import (
 	"encoding/json"
 	"flag"
+	"fmt"
 	"strconv"
 	"testing"
 
@@ -130,6 +131,7 @@ func TestSlice(t *testing.T) {
 			}), &value
 		}})
 
+	// Check that we handle slices of the empty interface
 	checkJSONSlice(&varTester{
 		t:        t,
 		flagName: "json",
@@ -144,5 +146,21 @@ func TestSlice(t *testing.T) {
 			}), &flagValue
 		}})
 
-	// TODO test []encoding.TextUnmarshaler
+	// Check that we handle slices of non-empty interfaces
+	checkStringerSlice := func(tester *varTester) {
+		tester.CheckParse([]string{}, ([]fmt.Stringer)(nil))
+		tester.CheckParse(
+			[]string{"-str", `1.0`},
+			[]fmt.Stringer{json.Number("1.0")},
+		)
+	}
+	checkStringerSlice(&varTester{
+		t:        t,
+		flagName: "str",
+		buildVar: func() (flag.Getter, interface{}) {
+			var value []fmt.Stringer
+			return flagx.Slice(&value, ",", func(s string) (interface{}, error) {
+				return json.Number(s), nil
+			}), &value
+		}})
 }

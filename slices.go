@@ -84,7 +84,11 @@ func Slice(sl interface{}, separator string, parse func(string) (interface{}, er
 				}
 				// FIXME This need more testing!
 				if itemType.Kind() == reflect.Interface {
-					target.Set(reflect.ValueOf(&v).Elem())
+					if itemType.NumMethod() == 0 {
+						target.Set(reflect.ValueOf(&v).Elem())
+					} else {
+						target.Set(reflect.ValueOf(&v).Elem().Elem().Convert(itemType))
+					}
 					return nil
 				}
 				target.Set(reflect.ValueOf(&v).Elem().Elem())
