@@ -91,12 +91,11 @@ func Slice(sl interface{}, separator string, parse func(string) (interface{}, er
 				}
 				if s, isString := v.(string); isString {
 					// Go through Set() or UnmarshalText()
-					setString(target, s)
-				} else {
-					//fmt.Printf("%T -> %s\n", v, target.Type())
-					//fmt.Printf("%s -> %s\n", reflect.ValueOf(&v).Elem().Elem().Type(), target.Type())
-					target.Set(reflect.ValueOf(&v).Elem().Elem())
+					return setString(target, s)
 				}
+				//fmt.Printf("%T -> %s\n", v, target.Type())
+				//fmt.Printf("%s -> %s\n", reflect.ValueOf(&v).Elem().Elem().Type(), target.Type())
+				target.Set(reflect.ValueOf(&v).Elem().Elem())
 				return nil
 			}
 		}
