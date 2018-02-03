@@ -4,11 +4,51 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"reflect"
 	"strconv"
 	"testing"
 
 	"github.com/dolmen-go/flagx"
 )
+
+func checkPanic(t *testing.T, expectedPanic interface{}) {
+	if p := recover(); p != nil {
+		if !reflect.DeepEqual(p, expectedPanic) {
+			t.Errorf("got %#v, expected %#v", p, expectedPanic)
+		}
+	} else {
+		t.Errorf("panic %#v expected", expectedPanic)
+	}
+}
+
+func TestSliceInvalidNotPointer(t *testing.T) {
+	defer checkPanic(t, "pointer expected")
+	a := []string{}
+	_ = flagx.Slice(a, "", nil)
+}
+
+func TestSliceInvalidNilPointer(t *testing.T) {
+	defer checkPanic(t, "non-nil pointer expected")
+	_ = flagx.Slice((*[]string)(nil), "", nil)
+}
+
+func TestSliceInvalidNotSliceType(t *testing.T) {
+	defer checkPanic(t, "non-nil pointer to a slice expected")
+	i := 2
+	_ = flagx.Slice(&i, "", nil)
+}
+
+func TestSliceInvalidMissingConverter(t *testing.T) {
+	defer checkPanic(t, "invalid slice type: []int doesn't implement encoding.TextUnmarshaler or flag.Value")
+	var v []int
+	_ = flagx.Slice(&v, "", nil)
+}
+
+func TestSliceInvalidMissingConstructor(t *testing.T) {
+	defer checkPanic(t, "a parse function must be provided to build a concrete value")
+	var v []flag.Getter
+	_ = flagx.Slice(&v, "", nil)
+}
 
 func checkIntSlice(tester *varTester) {
 	tester.CheckParse([]string{}, ([]int)(nil))
