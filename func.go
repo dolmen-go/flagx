@@ -13,7 +13,7 @@ func (Func) String() string { return "" }
 
 func (Func) Get() interface{} { return nil }
 
-// BoolFunc wraps a function like flag.Value.Set() as a boolean flag.Value.
+// BoolFunc wraps a function as a boolean flag.Value.
 type BoolFunc func(b bool) error
 
 func (BoolFunc) IsBoolFlag() bool { return true }
