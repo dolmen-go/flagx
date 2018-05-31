@@ -9,7 +9,10 @@ go:
 
 sudo: false
 
+go_import_path: github.com/dolmen-go/flagx
+
 before_install:
+- go list # Verify that go_import_path is ok
 - go get -t -v ./...
 
 script:
