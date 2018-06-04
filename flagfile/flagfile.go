@@ -23,7 +23,7 @@ type FlagSet interface {
 //
 // The output is expected to be:
 // - a slice of strings
-// - a map where keys are strings and valuer are either string or slice of strings
+// - a map where keys are strings and values are either string or slice of strings
 type Loader func(r io.Reader, fragment string) (interface{}, error)
 
 type file struct {
