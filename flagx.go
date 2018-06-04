@@ -59,3 +59,15 @@ func setterFor(typ reflect.Type) func(target reflect.Value, value string) error 
 		return nil
 	}
 }
+
+func isBoolFlag(f interface {
+	String() string
+	Set(string) error
+}) bool {
+	if bf, ok := f.(interface {
+		IsBoolFlag() bool
+	}); ok {
+		return bf.IsBoolFlag()
+	}
+	return false
+}
