@@ -30,7 +30,10 @@ install:
 - "case \"$(go version)\" in (*' go1.'[02-9]*|*' go1.10.'*) go get -t -v ./... ;; (*) go list -test -mod=readonly ./... ;; esac"
 
 script:
-- find . -name 'go.mod' | sed 's/\/go.mod$/\/.../' | GO111MODULE=on xargs go test -coverprofile=coverage.txt -covermode=atomic
+# Test flagx with coverage for codecov.io
+- go test -coverprofile=coverage.txt -covermode=atomic
+# Test other modules without codecov.io
+- find . -name 'go.mod' ! -path ./go.mod | sed 's/\/go.mod$/\/.../' | GO111MODULE=on xargs go test
 
 after_success:
 - bash <(curl -s https://codecov.io/bash)
