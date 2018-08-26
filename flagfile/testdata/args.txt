@@ -1,0 +1,5 @@
+-int
+1
+-args
+args2.txt
+-bool=true
