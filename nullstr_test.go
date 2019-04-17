@@ -4,10 +4,12 @@ import (
 	"flag"
 	"testing"
 
-	"github.com/wacul/ptr"
-
 	"github.com/dolmen-go/flagx"
 )
+
+func stringPtr(s string) *string {
+	return &s
+}
 
 func TestNullString(t *testing.T) {
 	tester := varTester{
@@ -20,9 +22,9 @@ func TestNullString(t *testing.T) {
 
 	tester.CheckParse([]string{}, (*string)(nil))
 	tester.CheckParse([]string{"a"}, (*string)(nil))
-	tester.CheckParse([]string{"-value", "x"}, ptr.String("x"))
-	tester.CheckParse([]string{"-value", ""}, ptr.String(""))
-	tester.CheckParse([]string{"-value", "a", "-value", "b"}, ptr.String("b"))
+	tester.CheckParse([]string{"-value", "x"}, stringPtr("x"))
+	tester.CheckParse([]string{"-value", ""}, stringPtr(""))
+	tester.CheckParse([]string{"-value", "a", "-value", "b"}, stringPtr("b"))
 
 	tester.CheckHelp()
 }
