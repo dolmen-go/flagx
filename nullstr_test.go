@@ -4,7 +4,7 @@ import (
 	"flag"
 	"testing"
 
-	"go.uber.org/thriftrw/ptr"
+	"github.com/wacul/ptr"
 
 	"github.com/dolmen-go/flagx"
 )
