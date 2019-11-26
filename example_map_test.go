@@ -9,16 +9,14 @@ import (
 )
 
 func ExampleMap() {
-	flags := flag.FlagSet{} // Usually flag.CommandLine
+	flags := flag.NewFlagSet("test", flag.PanicOnError) // Usually flag.CommandLine
 
 	m := make(map[string]int)
 	flags.Var(flagx.Map(m, func(s string) (interface{}, error) {
 		return strconv.Atoi(s)
 	}), "define", "define key=value pairs")
 
-	if err := flags.Parse([]string{"-define", "x=4", "-define", "y=5"}); err != nil {
-		fmt.Println(err)
-	}
+	flags.Parse([]string{"-define", "x=4", "-define", "y=5"})
 
 	if len(m) == 0 {
 		fmt.Println("not initialised")

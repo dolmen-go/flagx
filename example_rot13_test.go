@@ -59,16 +59,13 @@ func (rot13) DecodeString(src string) ([]byte, error) {
 }
 
 func ExampleEncoded_rot13() {
-	flags := flag.FlagSet{}
+	flags := flag.NewFlagSet("test", flag.PanicOnError) // Usually flag.CommandLine
 
 	var bin []byte
 	// Bind parameter "-password" to value bin above, with ROT13 decoding
 	flags.Var(flagx.Encoded(&bin, rot13{}), "password", "")
 
-	if err := flags.Parse([]string{"-password", "frperg"}); err != nil {
-		fmt.Println(err)
-		return
-	}
+	flags.Parse([]string{"-password", "frperg"})
 
 	fmt.Printf("Decoded: %q\n", bin)
 

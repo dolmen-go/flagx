@@ -29,12 +29,10 @@ func (h *hexString) UnmarshalText(text []byte) error {
 }
 
 func TestVarText(t *testing.T) {
-	flags := flag.FlagSet{}
+	flags := flag.NewFlagSet("test", flag.PanicOnError)
 	var hx hexString
 	flags.Var(Text(&hx), "hex", "hex string")
-	if err := flags.Parse([]string{"-hex", "1234"}); err != nil {
-		t.Fatalf("unexpected error: %s", err)
-	}
+	flags.Parse([]string{"-hex", "1234"})
 	if !bytes.Equal(hx, []byte{0x12, 0x34}) {
 		t.Fatalf("got: %#v", hx)
 	}

@@ -27,15 +27,12 @@ func (h *hexString) UnmarshalText(text []byte) error {
 }
 
 func Example() {
-	flags := flag.FlagSet{}
+	flags := flag.NewFlagSet("test", flag.PanicOnError) // Usually flag.CommandLine
 
 	var hx hexString
 	flags.Var(flagx.Text(&hx), "hex", "hex string")
 
-	if err := flags.Parse([]string{"-hex", "1234"}); err != nil {
-		fmt.Println(err)
-		return
-	}
+	flags.Parse([]string{"-hex", "1234"})
 
 	fmt.Printf("%d\n", hx)
 

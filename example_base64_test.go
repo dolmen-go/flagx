@@ -9,16 +9,13 @@ import (
 )
 
 func ExampleEncoded_base64() {
-	flags := flag.FlagSet{}
+	flags := flag.NewFlagSet("test", flag.PanicOnError) // Usually flag.CommandLine
 
 	var bin []byte
 	// Bind parameter "-base64" to value bin above, with Base64 decoding
 	flags.Var(flagx.Encoded(&bin, base64.RawStdEncoding), "base64", "hex string")
 
-	if err := flags.Parse([]string{"-base64", "aGVsbG8K"}); err != nil {
-		fmt.Println(err)
-		return
-	}
+	flags.Parse([]string{"-base64", "aGVsbG8K"})
 
 	fmt.Printf("%q\n", bin)
 

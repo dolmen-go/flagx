@@ -18,18 +18,14 @@ func (hexEncoding) EncodeToString(src []byte) string {
 	return hex.EncodeToString(src)
 }
 
-
 func ExampleEncoded_hex() {
-	flags := flag.FlagSet{}
+	flags := flag.NewFlagSet("test", flag.PanicOnError) // Usually flag.CommandLine
 
 	var bin []byte
 	// Bind parameter "-hex" to value bin above, with hex decoding
 	flags.Var(flagx.Encoded(&bin, hexEncoding{}), "hex", "hex string")
 
-	if err := flags.Parse([]string{"-hex", "68656c6c6f"}); err != nil {
-		fmt.Println(err)
-		return
-	}
+	flags.Parse([]string{"-hex", "68656c6c6f"})
 
 	fmt.Printf("%q\n", bin)
 

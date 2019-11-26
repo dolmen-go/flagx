@@ -9,7 +9,7 @@ import (
 )
 
 func ExampleTime() {
-	flags := flag.FlagSet{} // Usually flags.CommandLine
+	flags := flag.NewFlagSet("test", flag.PanicOnError) // Usually flag.CommandLine
 
 	var t time.Time
 
@@ -19,10 +19,7 @@ func ExampleTime() {
 		Location: time.UTC,
 	}, "time", "time value")
 
-	if err := flags.Parse([]string{"-time=2006-01-02T15:04:05Z"}); err != nil {
-		fmt.Println(err)
-		return
-	}
+	flags.Parse([]string{"-time=2006-01-02T15:04:05Z"})
 
 	fmt.Println(t)
 

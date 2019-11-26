@@ -5,34 +5,27 @@ import (
 	"flag"
 	"fmt"
 	"math/rand"
-	"os"
 
 	"github.com/dolmen-go/flagx"
 )
 
-/*
-	defer func(args []string, cmdline *flag.FlagSet) {
-		os.Args = args
-		flag.CommandLine = cmdline
-	}(os.Args, flag.CommandLine)
-*/
-
 func ExampleFunc() {
-	os.Args = []string{os.Args[0], "-push=a", "-push=b"}
-	flag.CommandLine = flag.NewFlagSet("test", flag.PanicOnError)
+	flags := flag.NewFlagSet("test", flag.PanicOnError) // Usually flag.CommandLine
 
 	var all []string
 
+	push := func(s string) error {
+		all = append(all, s)
+		return nil
+	}
+
 	// A flag that apppends the given value to slice all
-	flag.Var(
-		flagx.Func(func(s string) error {
-			all = append(all, s)
-			return nil
-		}),
+	flags.Var(
+		flagx.Func(push),
 		"push", "push `value`",
 	)
 
-	flag.Parse()
+	flags.Parse([]string{"-push=a", "-push=b"})
 
 	fmt.Println(all)
 
@@ -42,14 +35,13 @@ func ExampleFunc() {
 
 // Shows an hex encoded parameter
 func ExampleFunc_hex() {
-	os.Args = []string{os.Args[0], "-hex=68656c6c6f"}
-	flag.CommandLine = flag.NewFlagSet("test", flag.PanicOnError)
+	flags := flag.NewFlagSet("test", flag.PanicOnError) // Usually flag.CommandLine
 
 	// Destination of the decoded parameter value
 	var bin []byte
 
-	// A flag that apppends the given value to slice all
-	flag.Var(
+	// A flag that decodes value from hexadecimal
+	flags.Var(
 		flagx.Func(func(s string) (err error) {
 			bin, err = hex.DecodeString(s)
 			return
@@ -57,7 +49,7 @@ func ExampleFunc_hex() {
 		"hex", "hex encoded `value`",
 	)
 
-	flag.Parse()
+	flags.Parse([]string{"-hex=68656c6c6f"})
 
 	fmt.Printf("%q", bin)
 
@@ -66,15 +58,14 @@ func ExampleFunc_hex() {
 }
 
 func ExampleBoolFunc() {
-	os.Args = []string{os.Args[0], "-rand", "-value=5"}
-	flag.CommandLine = flag.NewFlagSet("test", flag.PanicOnError)
+	flags := flag.NewFlagSet("test", flag.PanicOnError) // Usually flag.CommandLine
 
 	var n int
 
 	// A flag that set the value of n
-	flag.IntVar(&n, "value", 0, "set given value")
+	flags.IntVar(&n, "value", 0, "set given value")
 	// A flag that set n to a random value
-	flag.Var(
+	flags.Var(
 		flagx.BoolFunc(
 			func(b bool) error {
 				n = rand.Int()
@@ -84,7 +75,7 @@ func ExampleBoolFunc() {
 		"rand", "set random value",
 	)
 
-	flag.Parse()
+	flags.Parse([]string{"-rand", "-value=5"})
 
 	fmt.Println(n)
 
