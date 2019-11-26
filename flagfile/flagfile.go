@@ -11,7 +11,8 @@ import (
 	"strings"
 )
 
-// FlagSet is a subset of methods of *flag.FlagSet
+// FlagSet is a subset of methods of *flag.FlagSet.
+// flag.CommandLine is a well known global instance.
 type FlagSet interface {
 	Parse([]string) error
 	Args() []string
@@ -22,8 +23,8 @@ type FlagSet interface {
 // The fragment may point to a partial of the content.
 //
 // The output is expected to be:
-// - a slice of strings
-// - a map where keys are strings and values are either string or slice of strings
+//   - a slice of strings
+//   - a map where keys are strings and values are either string or slice of strings
 type Loader func(r io.Reader, fragment string) (interface{}, error)
 
 type file struct {
@@ -36,9 +37,9 @@ type file struct {
 // file whose content will be expanded as command-line arguments and injected into flagset.
 //
 // The structured data may be:
-// - an array of strings given to flagset.Parse
-// - a map where keys are argument names (without leading '-') and keys are values
-//   or arrays of values
+//   - an array of strings given to flagset.Parse
+//   - a map where keys are argument names (without leading '-') and keys are values
+//     or arrays of values
 //
 // This flag is reentrant, so the file may refer to (include) other files by reusing the
 // same flag.
