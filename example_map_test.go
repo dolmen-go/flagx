@@ -3,24 +3,22 @@ package flagx_test
 import (
 	"flag"
 	"fmt"
-	"os"
 	"strconv"
 
 	"github.com/dolmen-go/flagx"
 )
 
 func ExampleMap() {
-	// Overwrite os.Args just for testing
-	savedArgs := os.Args
-	defer func() { os.Args = savedArgs }()
-	os.Args = []string{"example", "-define", "x=4", "-define", "y=5"}
+	flags := flag.FlagSet{} // Usually flag.CommandLine
 
 	m := make(map[string]int)
-	flag.Var(flagx.Map(m, func(s string) (interface{}, error) {
+	flags.Var(flagx.Map(m, func(s string) (interface{}, error) {
 		return strconv.Atoi(s)
 	}), "define", "define key=value pairs")
 
-	flag.Parse()
+	if err := flags.Parse([]string{"-define", "x=4", "-define", "y=5"}); err != nil {
+		fmt.Println(err)
+	}
 
 	if len(m) == 0 {
 		fmt.Println("not initialised")
