@@ -35,7 +35,7 @@ script:
 # Test flagx with coverage for codecov.io
 - go test -coverprofile=coverage.txt -covermode=atomic
 # Test other modules without codecov.io
-- find . -mindepth 2 -name 'go.mod' | sed 's/\/go.mod$/\/.../' | xargs -J % sh -c cd % ";" go test
+- find . -mindepth 2 -name 'go.mod' | sed 's/\/go.mod$//' | while read p; do (cd $p; go test ./...); done
 
 after_success:
 - bash <(curl -s https://codecov.io/bash)
