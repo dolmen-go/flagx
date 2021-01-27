@@ -18,6 +18,10 @@ The aim is code coverage of 100%. Check [testsuite coverage](https://codecov.io/
 and consider any code not covered by the testsuite as never tested and full of
 bugs.
 
+## See Also
+
+* [github.com/carlmjohnson/flagext](https://pkg.go.dev/github.com/carlmjohnson/flagext): similar flag.Value implementations
+
 ## License
 
 Copyright 2017-2018 Olivier Mengué
