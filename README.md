@@ -21,6 +21,7 @@ bugs.
 ## See Also
 
 * [github.com/carlmjohnson/flagext](https://pkg.go.dev/github.com/carlmjohnson/flagext): similar flag.Value implementations
+* [github.com/KimMachineGun/flago](https://pkg.go.dev/github.com/KimMachineGun/flago): define a set of flags via a struct and tags
 
 ## License
 
