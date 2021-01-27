@@ -1,12 +1,12 @@
 # flagx - Helpers for the 'flag' package
 
-[![GoDoc](https://img.shields.io/badge/godoc-reference-blue.svg)](https://godoc.org/github.com/dolmen-go/flagx)
+[![GoDoc](https://img.shields.io/badge/godoc-reference-blue.svg)](https://pkg.go.dev/github.com/dolmen-go/flagx)
 [![Travis-CI](https://api.travis-ci.org/dolmen-go/flagx.svg?branch=master)](https://travis-ci.org/dolmen-go/flagx)
 [![Go Report Card](https://goreportcard.com/badge/github.com/dolmen-go/flagx)](https://goreportcard.com/report/github.com/dolmen-go/flagx)
 
 ## Documentation
 
-Latest (master): https://godoc.org/github.com/dolmen-go/flagx
+Latest (master): https://pkg.go.dev/github.com/dolmen-go/flagx
 
 Your local copy: http://localhost:6060/pkg/github.com/dolmen-go/flagx
 
