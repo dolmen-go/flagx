@@ -28,6 +28,8 @@ func (v *textValue) Get() interface{} {
 
 // Text wraps a Text{Unm,M}arshaler as a flag.Getter
 // which can then be passed to flag.Var() / flag.FlagSet.Var()
+//
+// Deprecated: use flag.TextVar instead available since Go 1.19.
 func Text(v interface {
 	// encoding.TextMarshaler
 	MarshalText() (text []byte, err error)
