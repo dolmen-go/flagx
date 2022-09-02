@@ -2,9 +2,9 @@ package flagx
 
 type textValue struct {
 	value interface {
-		// encoding.TextMarshaler
+		// See [encoding.TextMarshaler].
 		MarshalText() (text []byte, err error)
-		// encoding.TextUnmarshaler
+		// See [encoding.TextUnmarshaler].
 		UnmarshalText(text []byte) error
 	}
 }
@@ -26,14 +26,14 @@ func (v *textValue) Get() interface{} {
 	return v.value
 }
 
-// Text wraps a Text{Unm,M}arshaler as a flag.Getter
-// which can then be passed to flag.Var() / flag.FlagSet.Var()
+// Text wraps an [encoding.TextUnmarshaler] + [encoding.TextMarshaler] as a [flag.Getter]
+// which can then be passed to [flag.Var] / [flag.FlagSet.Var].
 //
-// Deprecated: use flag.TextVar instead available since Go 1.19.
+// Note: you might prefer to use [flag.TextVar] which is available since Go 1.19.
 func Text(v interface {
-	// encoding.TextMarshaler
+	// See [encoding.TextMarshaler].
 	MarshalText() (text []byte, err error)
-	// encoding.TextUnmarshaler
+	// See [encoding.TextUnmarshaler].
 	UnmarshalText(text []byte) error
 }) Value {
 	return &textValue{v}
