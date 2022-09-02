@@ -14,8 +14,10 @@ import (
 // of the command-line.
 //
 // The filename may include an URI fragment starting with '#' and followed
-// by a JSON Pointer (RFC 6901) to load the arguments from a part of the file.
+// by a [JSON Pointer (RFC 6901)] to load the arguments from a part of the file.
 // The empty fragment ("") means the root value, which is the whole file.
+//
+// [JSON Pointer (RFC 6901)]: https://www.rfc-editor.org/rfc/rfc6901.html
 func File(flagset *flag.FlagSet) flag.Value {
 	return flagfile.File(flagset, loader)
 }
