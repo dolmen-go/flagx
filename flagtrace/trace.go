@@ -56,7 +56,7 @@ func (tv *traceVar) done() {
 	trace.Stop()
 }
 
-// Register registers a flag to enable tracing with runtime/trace.
+// Register registers a [flag] to enable tracing with [runtime/trace].
 //
 // The returned func must be run defered to stop the tracing and close the file.
 //
