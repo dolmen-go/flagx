@@ -43,11 +43,11 @@ func (is IntSlice) Get() interface{} {
 	return *is.Slice
 }
 
-// Slice wraps any pointer to a slice to expose it as a flag.Value.
+// Slice wraps any pointer to a slice to expose it as a [flag.Value].
 //
-// The element type of the slice may implement flag.Value. In that case the
+// The element type of the slice may implement [flag.Value]. In that case the
 // Set() method will be called on the target element.
-// The element type of the slice may implement encoding.TextUnmarshaler. In
+// The element type of the slice may implement [encoding.TextUnmarshaler]. In
 // that case the UnmarshalText() method will be called on the target element.
 //
 // The parse func is optional. If it is set, it must return a value

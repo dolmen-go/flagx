@@ -6,11 +6,11 @@ import (
 	"strings"
 )
 
-// Map wraps any map to expose it as a flag.Value.
+// Map wraps any map to expose it as a [flag.Value].
 //
-// The value type of the map may implement flag.Value. In that case the
+// The value type of the map may implement [flag.Value]. In that case the
 // Set() method will be called on the target element.
-// The element type of the map may implement encoding.TextUnmarshaler. In
+// The element type of the map may implement [encoding.TextUnmarshaler]. In
 // that case the UnmarshalText() method will be called on the target element.
 //
 // The parse func is optional. If it is set, it must return a value

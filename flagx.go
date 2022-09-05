@@ -23,7 +23,7 @@ func (Dummy) Get() interface{} { return nil }
 
 // stringSetter is the subset of [flag.Value] for setting a value from a string
 type stringSetter interface {
-	// See flag.Value
+	// See [flag.Value.Set].
 	Set(string) error
 }
 
