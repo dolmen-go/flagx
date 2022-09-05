@@ -2,7 +2,7 @@ package flagx
 
 import "strconv"
 
-// YesNo returns a flag.Value for a boolean value, but accepting "yes"/"y"/"no"/"n" in addition to strconv.ParseBool values.
+// YesNo returns a [flag.Value] for a boolean value, but accepting "yes"/"y"/"no"/"n" in addition to [strconv.ParseBool] values.
 func YesNo(b *bool) Value {
 	_ = *b // Check not nil
 	return yesNo{b}
