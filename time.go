@@ -4,7 +4,7 @@ import (
 	"time"
 )
 
-// Time allows to define a flag that feeds a time.Time value
+// Time allows to define a flag that feeds a [time.Time] value.
 type Time struct {
 	Time     *time.Time
 	Format   string // See time.ParseTime
