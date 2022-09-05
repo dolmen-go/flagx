@@ -11,8 +11,8 @@ import (
 	"strings"
 )
 
-// FlagSet is a subset of methods of *flag.FlagSet.
-// flag.CommandLine is a well known global instance.
+// FlagSet is a subset of methods of *[flag.FlagSet].
+// [flag.CommandLine] is a well known global instance.
 type FlagSet interface {
 	Parse([]string) error
 	Args() []string
@@ -37,7 +37,7 @@ type file struct {
 // file whose content will be expanded as command-line arguments and injected into flagset.
 //
 // The structured data may be:
-//   - an array of strings given to flagset.Parse
+//   - an array of strings given to [flagset.Parse]
 //   - a map where keys are argument names (without leading '-') and keys are values
 //     or arrays of values
 //
@@ -55,7 +55,7 @@ func (file) String() string { return "" }
 // Set loads the given file, decodes it and interprets
 // its structured data as a list of arguments.
 //
-// Set is part of the flag.Value interface.
+// Set is part of the [flag.Value] interface.
 func (f *file) Set(path string) error {
 	var fragment string
 	if i := strings.IndexByte(path, '#'); i > 0 {
