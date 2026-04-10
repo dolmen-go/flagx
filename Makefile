@@ -1,3 +1,8 @@
+
+MAKEFLAGS += --warn-undefined-variables
+SHELL := bash
+.SHELLFLAGS := -eu -o pipefail -c
+
 go ?= GO111MODULE=on go
 
 git_root := $(shell git rev-parse --show-toplevel)
@@ -20,12 +25,14 @@ help: $(MAKEFILE_LIST)
 
 .PHONY: go-version go-get
 
-go_files = go.mod go.sum $(shell $(go) list -f '{{$$Dir := .Dir}}{{range .GoFiles}}{{$$Dir}}/{{.}} {{end}}' ./...)
+# Go sources that matters to downstream.
+# Note that Go test files or testdata is not included. Makefile or README.md aren't either.
+go_files = go.mod go.sum $(shell $(go) list -f '{{$$Dir := .Dir}}{{range .GoFiles}}{{$$Dir}}/{{.}} {{end}}{{range .IgnoredGoFiles}}{{$$Dir}}/{{.}} {{end}}{{range .EmbedFiles}}{{$$Dir}}/{{.}} {{end}}' ./...)
 go_files_last_commit = $(shell git log -1 --format=%H -- $(go_files))
 
 ## Show module version as expected by the Go toolchain
 go-version: $(go_files) LICENSE
-	@{ git describe --tags --match '$(tag_prefix)v*.*.*' --exact-match 2>/dev/null $(shell git log -1 --format=%H -- $^ ) || TZ=UTC git log -1 '--date=format-local:%Y%m%d%H%M%S' --abbrev=12 '--pretty=tformat:%(describe:tags,match=$(tag_prefix)v*,abbrev=0)-%cd-%h' $^ | perl -pE 's/(\d+)(?=-)/$$1+1/e' ; } | sed -e 's!.*/!!;s!^-!v0.0.0-!'
+	@{ git describe --tags --match '$(tag_prefix)v[0-9]*.*.*' --exclude '$(tag_prefix)v*.*.*-*' --exact-match 2>/dev/null $(shell git log -1 --format=%H -- $^ ) || TZ=UTC git log -1 '--date=format-local:%Y%m%d%H%M%S' --abbrev=12 '--pretty=tformat:%(describe:tags,match=$(tag_prefix)v[0-9]*.*.*,exclude=$(tag_prefix)v*.*.*-*,abbrev=0)-%cd-%h' $^ | perl -pE 's/(\d+)(?=-)/$$1+1/e' ; } | sed -e 's!.*/!!;s!^-!v0.0.0-!'
 
 ## Show "go get" command to upgrade the module in a downstream project
 go-get:
@@ -35,36 +42,46 @@ go-get:
 
 ## Show next minor tag to create: prefix/vX.Y.Z -> prefix/vX.(Y+1).0
 next.minor:
-	@git tag -l --sort=-v:refname $(tag_prefix)'v*' | perl -E '$$_=<>; s/\.([0-9]+)\..*$$/".".($$1+1).".0"/e; print'
+	@{ git describe --tags --match '$(tag_prefix)v[0-9]*.*.*' --exclude '$(tag_prefix)v*.*.*-*' 2>/dev/null || echo '$(tag_prefix)v0.0.0' ; } | perl -pE 's/\.([0-9]+)\..*$$/".".($$1+1).".0"/e'
 
 ## Show next patch tag to create: prefix/vX.Y.Z -> prefix/vX.Y.(Z+1)
 next.patch:
-	@git tag -l --sort=-v:refname $(tag_prefix)'v*' | perl -E '$$_=<>; s/\.([0-9]+)$$/".".($$1+1)/e; print'
+	@{ git describe --tags --match '$(tag_prefix)v[0-9]*.*.*' --exclude '$(tag_prefix)v*.*.*-*' 2>/dev/null || echo '$(tag_prefix)v0.0.0' ; } | perl -pE 's/-.*//; s/\.([0-9]+)$$/".".($$1+1)/e'
 
 ## Tag a new release, increasing the minor version: prefix/vX.Y.Z -> prefix/vX.(Y+1).0
+tag.minor: V ?= $(shell { git describe --tags --match '$(tag_prefix)v[0-9]*.*.*' --exclude '$(tag_prefix)v*.*.*-*' 2>/dev/null || echo '$(tag_prefix)v0.0.0' ; } | perl -pE 's/\.([0-9]+)\..*$$/".".($$1+1).".0"/e' )
 tag.minor:
-	git tag -a $$(git tag -l --sort=-v:refname $(tag_prefix)'v*' | perl -E '$$_=<>; s/\.([0-9]+)\..*$$/".".($$1+1).".0"/e; print') $(go_files_last_commit)
+	[[ '$(V)' = '$(tag_prefix)v'[0-9]*.*.* ]]
+	git tag -a '$(V)' $(go_files_last_commit)
 
 ## Tag a new release, increasing the patch version: prefix/vX.Y.Z -> prefix/vX.Y.(Z+1)
+tag.patch: V ?= $(shell { git describe --tags --match '$(tag_prefix)v[0-9]*.*.*' --exclude '$(tag_prefix)v*.*.*-*' 2>/dev/null || echo '$(tag_prefix)v0.0.0' ; } | perl -pE 's/-.*//; s/\.([0-9]+)$$/".".($$1+1)/e')
 tag.patch:
-	git tag -a $$(git tag -l --sort=-v:refname $(tag_prefix)'v*' | perl -E '$$_=<>; s/\.([0-9]+)$$/".".($$1+1)/e; print') $(go_files_last_commit)
+	[[ '$(V)' = '$(tag_prefix)v'[0-9]*.*.* ]]
+	git tag -a '$(V)' $(go_files_last_commit)
 
 
-.PHONY: bump-tag edit-tag changelog
+.PHONY: bump-tag bump-tag-HEAD edit-tag changelog
 
-## Bump last non-pushed tag to HEAD
+## Bump last non-pushed tag to last change of Go files
 bump-tag:
 	# Check if tag has already been pushed...
-	t=$$(git tag -l --sort=-v:refname $(tag_prefix)'v*' | head -n1); ! git ls-remote --exit-code --tags origin $$t
-	t=$$(git tag -l --sort=-v:refname $(tag_prefix)'v*' | head -n1); git tag -f -a -m "$$(git tag -l '--format=%(contents)' $$t)" $$t
+	t=$$(git describe --tags --match '$(tag_prefix)v[0-9]*.*.*' | sed -e 's/-[1-9][0-9]*-.*//'); ! git ls-remote --exit-code --tags origin "$$t"
+	t=$$(git describe --tags --match '$(tag_prefix)v[0-9]*.*.*' | sed -e 's/-[1-9][0-9]*-.*//'); git tag -f -a -m "$$(git tag -l '--format=%(contents)' "$$t")" "$$t" $(go_files_last_commit)
+
+## Bump last non-pushed tag to HEAD
+bump-tag-HEAD:
+	# Check if tag has already been pushed...
+	t=$$(git describe --tags --match '$(tag_prefix)v[0-9]*.*.*' | sed -e 's/-[1-9][0-9]*-.*//'); ! git ls-remote --exit-code --tags origin "$$t"
+	t=$$(git describe --tags --match '$(tag_prefix)v[0-9]*.*.*' | sed -e 's/-[1-9][0-9]*-.*//'); git tag -f -a -m "$$(git tag -l '--format=%(contents)' "$$t")" "$$t" HEAD
 
 ## Edit the message attached to the last tag
 edit-tag:
 	# Check if tag has already been pushed...
-	t=$$(git tag -l --sort=-v:refname $(tag_prefix)'v*' | head -n1); ! git ls-remote --exit-code --tags origin $$t
-	t=$$(git tag -l --sort=-v:refname $(tag_prefix)'v*' | head -n1); git tag -f -a $$t $$t^{}
+	t=$$(git describe --tags --match '$(tag_prefix)v[0-9]*.*.*' | sed -e 's/-[1-9][0-9]*-.*//'); ! git ls-remote --exit-code --tags origin "$$t"
+	t=$$(git describe --tags --match '$(tag_prefix)v[0-9]*.*.*' | sed -e 's/-[1-9][0-9]*-.*//'); git tag -f -a "$$t" "$$t^{}"
 
 
 ## Dump changelog from Git tags
 changelog:
-	@git tag -l --sort=-v:refname "--format=[%(refname:short)] %(contents)*****************************" $(tag_prefix)'v*'
+	@git tag -l --sort=-v:refname "--format=[%(refname:short)] %(contents)*****************************" '$(tag_prefix)v[0-9]*.*.*'
