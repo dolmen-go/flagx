@@ -55,13 +55,19 @@ tag.patch:
 	git tag -a $$({ git describe --tags --match '$(tag_prefix)v[0-9]*.*.*' --exclude '$(tag_prefix)v*.*.*-*' 2>/dev/null || echo '$(tag_prefix)v0.0.0' ; } | perl -pE 's/-.*//; s/\.([0-9]+)$$/".".($$1+1)/e') $(go_files_last_commit)
 
 
-.PHONY: bump-tag edit-tag changelog
+.PHONY: bump-tag bump-tag-HEAD edit-tag changelog
 
-## Bump last non-pushed tag to HEAD
+## Bump last non-pushed tag to last change of Go files
 bump-tag:
 	# Check if tag has already been pushed...
 	t=$$(git describe --tags --match '$(tag_prefix)v[0-9]*.*.*' | sed -e 's/-[1-9][0-9]*-.*//'); ! git ls-remote --exit-code --tags origin "$$t"
-	t=$$(git describe --tags --match '$(tag_prefix)v[0-9]*.*.*' | sed -e 's/-[1-9][0-9]*-.*//'); git tag -f -a -m "$$(git tag -l '--format=%(contents)' "$$t")" "$$t"
+	t=$$(git describe --tags --match '$(tag_prefix)v[0-9]*.*.*' | sed -e 's/-[1-9][0-9]*-.*//'); git tag -f -a -m "$$(git tag -l '--format=%(contents)' "$$t")" "$$t" $(go_files_last_commit)
+
+## Bump last non-pushed tag to HEAD
+bump-tag-HEAD:
+	# Check if tag has already been pushed...
+	t=$$(git describe --tags --match '$(tag_prefix)v[0-9]*.*.*' | sed -e 's/-[1-9][0-9]*-.*//'); ! git ls-remote --exit-code --tags origin "$$t"
+	t=$$(git describe --tags --match '$(tag_prefix)v[0-9]*.*.*' | sed -e 's/-[1-9][0-9]*-.*//'); git tag -f -a -m "$$(git tag -l '--format=%(contents)' "$$t")" "$$t" HEAD
 
 ## Edit the message attached to the last tag
 edit-tag:
