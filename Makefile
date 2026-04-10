@@ -30,7 +30,7 @@ go_files_last_commit = $(shell git log -1 --format=%H -- $(go_files))
 
 ## Show module version as expected by the Go toolchain
 go-version: $(go_files) LICENSE
-	@{ git describe --tags --match '$(tag_prefix)v*.*.*' --exclude '$(tag_prefix)v*.*.*-*' --exact-match 2>/dev/null $(shell git log -1 --format=%H -- $^ ) || TZ=UTC git log -1 '--date=format-local:%Y%m%d%H%M%S' --abbrev=12 '--pretty=tformat:%(describe:tags,match=$(tag_prefix)v*.*.*,exclude=$(tag_prefix)v*.*.*-*,abbrev=0)-%cd-%h' $^ | perl -pE 's/(\d+)(?=-)/$$1+1/e' ; } | sed -e 's!.*/!!;s!^-!v0.0.0-!'
+	@{ git describe --tags --match '$(tag_prefix)v[0-9]*.*.*' --exclude '$(tag_prefix)v*.*.*-*' --exact-match 2>/dev/null $(shell git log -1 --format=%H -- $^ ) || TZ=UTC git log -1 '--date=format-local:%Y%m%d%H%M%S' --abbrev=12 '--pretty=tformat:%(describe:tags,match=$(tag_prefix)v[0-9]*.*.*,exclude=$(tag_prefix)v*.*.*-*,abbrev=0)-%cd-%h' $^ | perl -pE 's/(\d+)(?=-)/$$1+1/e' ; } | sed -e 's!.*/!!;s!^-!v0.0.0-!'
 
 ## Show "go get" command to upgrade the module in a downstream project
 go-get:
@@ -40,19 +40,19 @@ go-get:
 
 ## Show next minor tag to create: prefix/vX.Y.Z -> prefix/vX.(Y+1).0
 next.minor:
-	@{ git describe --tags --match '$(tag_prefix)v*.*.*' --exclude '$(tag_prefix)v*.*.*-*' 2>/dev/null || echo '$(tag_prefix)v0.0.0' ; } | perl -pE 's/\.([0-9]+)\..*$$/".".($$1+1).".0"/e'
+	@{ git describe --tags --match '$(tag_prefix)v[0-9]*.*.*' --exclude '$(tag_prefix)v*.*.*-*' 2>/dev/null || echo '$(tag_prefix)v0.0.0' ; } | perl -pE 's/\.([0-9]+)\..*$$/".".($$1+1).".0"/e'
 
 ## Show next patch tag to create: prefix/vX.Y.Z -> prefix/vX.Y.(Z+1)
 next.patch:
-	@{ git describe --tags --match '$(tag_prefix)v*.*.*' --exclude '$(tag_prefix)v*.*.*-*' 2>/dev/null || echo '$(tag_prefix)v0.0.0' ; } | perl -pE 's/-.*//; s/\.([0-9]+)$$/".".($$1+1)/e'
+	@{ git describe --tags --match '$(tag_prefix)v[0-9]*.*.*' --exclude '$(tag_prefix)v*.*.*-*' 2>/dev/null || echo '$(tag_prefix)v0.0.0' ; } | perl -pE 's/-.*//; s/\.([0-9]+)$$/".".($$1+1)/e'
 
 ## Tag a new release, increasing the minor version: prefix/vX.Y.Z -> prefix/vX.(Y+1).0
 tag.minor:
-	git tag -a $$({ git describe --tags --match '$(tag_prefix)v*.*.*' --exclude '$(tag_prefix)v*.*.*-*' 2>/dev/null || echo '$(tag_prefix)v0.0.0' ; } | perl -pE 's/\.([0-9]+)\..*$$/".".($$1+1).".0"/e') $(go_files_last_commit)
+	git tag -a $$({ git describe --tags --match '$(tag_prefix)v[0-9]*.*.*' --exclude '$(tag_prefix)v*.*.*-*' 2>/dev/null || echo '$(tag_prefix)v0.0.0' ; } | perl -pE 's/\.([0-9]+)\..*$$/".".($$1+1).".0"/e') $(go_files_last_commit)
 
 ## Tag a new release, increasing the patch version: prefix/vX.Y.Z -> prefix/vX.Y.(Z+1)
 tag.patch:
-	git tag -a $$({ git describe --tags --match '$(tag_prefix)v*.*.*' --exclude '$(tag_prefix)v*.*.*-*' 2>/dev/null || echo '$(tag_prefix)v0.0.0' ; } | perl -pE 's/-.*//; s/\.([0-9]+)$$/".".($$1+1)/e') $(go_files_last_commit)
+	git tag -a $$({ git describe --tags --match '$(tag_prefix)v[0-9]*.*.*' --exclude '$(tag_prefix)v*.*.*-*' 2>/dev/null || echo '$(tag_prefix)v0.0.0' ; } | perl -pE 's/-.*//; s/\.([0-9]+)$$/".".($$1+1)/e') $(go_files_last_commit)
 
 
 .PHONY: bump-tag edit-tag changelog
