@@ -36,7 +36,7 @@ go-version: $(go_files) LICENSE
 
 ## Show "go get" command to upgrade the module in a downstream project
 go-get:
-	@echo $(go) get $(shell $(go) list .)@$(shell $(MAKE) "go=$(go)" go-version)
+	@echo $(go) get $(shell $(go) list .)@$(shell $(MAKE) -f $(firstword $(MAKEFILE_LIST)) "go=$(go)" go-version)
 
 .PHONY: next.minor next.patch tag.minor tag.patch
 
