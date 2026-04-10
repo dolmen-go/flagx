@@ -11,7 +11,7 @@ import (
 	"github.com/dolmen-go/flagx"
 )
 
-func checkPanic(t *testing.T, expectedPanic interface{}) {
+func checkPanic(t *testing.T, expectedPanic any) {
 	if p := recover(); p != nil {
 		if !reflect.DeepEqual(p, expectedPanic) {
 			t.Errorf("got %#v, expected %#v", p, expectedPanic)
@@ -79,7 +79,7 @@ func TestIntSlice(t *testing.T) {
 	checkIntSlice(&varTester{
 		t:        t,
 		flagName: "ints",
-		buildVar: func() (flag.Getter, interface{}) {
+		buildVar: func() (flag.Getter, any) {
 			var value []int
 			return flagx.IntSlice{&value}, &value
 		}})
@@ -104,10 +104,10 @@ func checkTxtSlice(tester *varTester) {
 }
 
 func checkJSONSlice(tester *varTester) {
-	tester.CheckParse([]string{}, ([]interface{})(nil))
+	tester.CheckParse([]string{}, ([]any)(nil))
 	tester.CheckParse(
 		[]string{"-json", "123", "-json", "null", "-json", `"a"`, "-json", `{}`},
-		[]interface{}{123.0, nil, "a", map[string]interface{}{}},
+		[]any{123.0, nil, "a", map[string]any{}},
 	)
 }
 
@@ -115,9 +115,9 @@ func TestSlice(t *testing.T) {
 	checkIntSlice(&varTester{
 		t:        t,
 		flagName: "ints",
-		buildVar: func() (flag.Getter, interface{}) {
+		buildVar: func() (flag.Getter, any) {
 			var value []int
-			return flagx.Slice(&value, ",", func(s string) (interface{}, error) {
+			return flagx.Slice(&value, ",", func(s string) (any, error) {
 				n, err := strconv.ParseInt(s, 0, 0)
 				if err != nil {
 					return nil, nil
@@ -128,16 +128,16 @@ func TestSlice(t *testing.T) {
 	checkStringSlice(&varTester{
 		t:        t,
 		flagName: "strings",
-		buildVar: func() (flag.Getter, interface{}) {
+		buildVar: func() (flag.Getter, any) {
 			var value []string
-			return flagx.Slice(&value, ",", func(s string) (interface{}, error) {
+			return flagx.Slice(&value, ",", func(s string) (any, error) {
 				return s, nil
 			}), &value
 		}})
 	checkStringSlice(&varTester{
 		t:        t,
 		flagName: "strings",
-		buildVar: func() (flag.Getter, interface{}) {
+		buildVar: func() (flag.Getter, any) {
 			var value []string
 			return flagx.Slice(&value, ",", nil), &value
 		}})
@@ -146,7 +146,7 @@ func TestSlice(t *testing.T) {
 	checkTxtSlice(&varTester{
 		t:        t,
 		flagName: "txt",
-		buildVar: func() (flag.Getter, interface{}) {
+		buildVar: func() (flag.Getter, any) {
 			var value []txt
 			return flagx.Slice(&value, ",", nil), &value
 		}})
@@ -154,9 +154,9 @@ func TestSlice(t *testing.T) {
 	checkTxtSlice(&varTester{
 		t:        t,
 		flagName: "txt",
-		buildVar: func() (flag.Getter, interface{}) {
+		buildVar: func() (flag.Getter, any) {
 			var value []txt
-			return flagx.Slice(&value, ",", func(s string) (interface{}, error) {
+			return flagx.Slice(&value, ",", func(s string) (any, error) {
 				return txt{s + "_"}, nil
 			}), &value
 		}})
@@ -164,9 +164,9 @@ func TestSlice(t *testing.T) {
 	checkTxtSlice(&varTester{
 		t:        t,
 		flagName: "txt",
-		buildVar: func() (flag.Getter, interface{}) {
+		buildVar: func() (flag.Getter, any) {
 			var value []txt
-			return flagx.Slice(&value, ",", func(s string) (interface{}, error) {
+			return flagx.Slice(&value, ",", func(s string) (any, error) {
 				return s, nil
 			}), &value
 		}})
@@ -175,10 +175,10 @@ func TestSlice(t *testing.T) {
 	checkJSONSlice(&varTester{
 		t:        t,
 		flagName: "json",
-		buildVar: func() (flag.Getter, interface{}) {
-			var flagValue []interface{}
-			return flagx.Slice(&flagValue, "", func(s string) (interface{}, error) {
-				var v interface{}
+		buildVar: func() (flag.Getter, any) {
+			var flagValue []any
+			return flagx.Slice(&flagValue, "", func(s string) (any, error) {
+				var v any
 				if err := json.Unmarshal([]byte(s), &v); err != nil {
 					return nil, err
 				}
@@ -197,9 +197,9 @@ func TestSlice(t *testing.T) {
 	checkStringerSlice(&varTester{
 		t:        t,
 		flagName: "str",
-		buildVar: func() (flag.Getter, interface{}) {
+		buildVar: func() (flag.Getter, any) {
 			var value []fmt.Stringer
-			return flagx.Slice(&value, ",", func(s string) (interface{}, error) {
+			return flagx.Slice(&value, ",", func(s string) (any, error) {
 				return json.Number(s), nil
 			}), &value
 		}})

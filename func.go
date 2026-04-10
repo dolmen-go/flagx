@@ -11,7 +11,7 @@ func (f Func) Set(s string) error { return f(s) }
 
 func (Func) String() string { return "" }
 
-func (Func) Get() interface{} { return nil }
+func (Func) Get() any { return nil }
 
 // BoolFunc wraps a function as a boolean [flag.Value].
 type BoolFunc func(b bool) error
@@ -28,4 +28,4 @@ func (f BoolFunc) Set(s string) error {
 
 func (BoolFunc) String() string { return "" }
 
-func (BoolFunc) Get() interface{} { return nil }
+func (BoolFunc) Get() any { return nil }

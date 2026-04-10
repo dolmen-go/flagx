@@ -39,7 +39,7 @@ func (is IntSlice) Set(s string) (err error) {
 	return nil
 }
 
-func (is IntSlice) Get() interface{} {
+func (is IntSlice) Get() any {
 	return *is.Slice
 }
 
@@ -54,7 +54,7 @@ func (is IntSlice) Get() interface{} {
 // assignable to an element of the slice. If the returned value is a bare
 // string, it will pass through Set() or UnmarshalText() if the type implements
 // it (see above).
-func Slice(sl interface{}, separator string, parse func(string) (interface{}, error)) Value {
+func Slice(sl any, separator string, parse func(string) (any, error)) Value {
 	v := reflect.ValueOf(sl)
 	if v.Type().Kind() != reflect.Pointer {
 		panic("pointer expected")
@@ -148,6 +148,6 @@ func (sl *slice) Set(s string) error {
 	return sl.appnd(s)
 }
 
-func (sl *slice) Get() interface{} {
+func (sl *slice) Get() any {
 	return sl.slice.Interface()
 }

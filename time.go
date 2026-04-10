@@ -28,6 +28,6 @@ func (t Time) Set(s string) (err error) {
 	return
 }
 
-func (t Time) Get() interface{} {
+func (t Time) Get() any {
 	return *t.Time
 }

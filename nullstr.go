@@ -29,6 +29,6 @@ func (ns nullStr) Set(str string) (err error) {
 	return nil
 }
 
-func (ns nullStr) Get() interface{} {
+func (ns nullStr) Get() any {
 	return *ns.Pointer
 }

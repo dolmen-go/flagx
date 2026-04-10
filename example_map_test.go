@@ -12,7 +12,7 @@ func ExampleMap() {
 	flags := flag.NewFlagSet("test", flag.PanicOnError) // Usually flag.CommandLine
 
 	m := make(map[string]int)
-	flags.Var(flagx.Map(m, func(s string) (interface{}, error) {
+	flags.Var(flagx.Map(m, func(s string) (any, error) {
 		return strconv.Atoi(s)
 	}), "define", "define key=value pairs")
 

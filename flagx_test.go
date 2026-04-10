@@ -13,7 +13,7 @@ import (
 // Check that our flagx.Value is the same as flag.Getter
 var _ flag.Getter = flagx.Value(nil)
 
-type varBuilder func() (flag.Getter, interface{})
+type varBuilder func() (flag.Getter, any)
 
 type varTester struct {
 	t        *testing.T
@@ -21,7 +21,7 @@ type varTester struct {
 	buildVar varBuilder
 }
 
-func (tester *varTester) CheckParse(args []string, expected interface{}) {
+func (tester *varTester) CheckParse(args []string, expected any) {
 	flagValue, pvalue := tester.buildVar()
 	var kind reflect.Kind
 	if pvalue != nil {
@@ -44,7 +44,7 @@ func (tester *varTester) CheckParse(args []string, expected interface{}) {
 		tester.t.Fatalf("Unexpected error: %s\nError output:\n%s", err, output.String())
 	}
 	// Dereference pvalue
-	var value interface{}
+	var value any
 	switch kind {
 	case reflect.Pointer:
 		value = reflect.ValueOf(pvalue).Elem().Interface()
@@ -97,7 +97,7 @@ func TestDummy(t *testing.T) {
 	tester := varTester{
 		t:        t,
 		flagName: "dummy",
-		buildVar: func() (flag.Getter, interface{}) {
+		buildVar: func() (flag.Getter, any) {
 			return flagx.Dummy{}, nil
 		}}
 

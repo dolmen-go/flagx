@@ -24,9 +24,9 @@ func TestMap(t *testing.T) {
 	checkIntMap(&varTester{
 		t:        t,
 		flagName: "kv",
-		buildVar: func() (flag.Getter, interface{}) {
+		buildVar: func() (flag.Getter, any) {
 			m := make(map[string]int)
-			return flagx.Map(m, func(s string) (interface{}, error) {
+			return flagx.Map(m, func(s string) (any, error) {
 				n, err := strconv.ParseInt(s, 0, 0)
 				if err != nil {
 					return nil, nil
@@ -37,16 +37,16 @@ func TestMap(t *testing.T) {
 	checkStringMap(&varTester{
 		t:        t,
 		flagName: "kv",
-		buildVar: func() (flag.Getter, interface{}) {
+		buildVar: func() (flag.Getter, any) {
 			m := make(map[string]string)
-			return flagx.Map(m, func(s string) (interface{}, error) {
+			return flagx.Map(m, func(s string) (any, error) {
 				return s, nil
 			}), m
 		}})
 	checkStringMap(&varTester{
 		t:        t,
 		flagName: "kv",
-		buildVar: func() (flag.Getter, interface{}) {
+		buildVar: func() (flag.Getter, any) {
 			m := make(map[string]string)
 			return flagx.Map(m, nil), m
 		}})

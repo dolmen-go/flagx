@@ -30,7 +30,7 @@ func (yn yesNo) Set(s string) error {
 	return nil
 }
 
-func (yn yesNo) Get() interface{} { return *yn.b }
+func (yn yesNo) Get() any { return *yn.b }
 
 func (yn yesNo) String() string { return strconv.FormatBool(*yn.b) }
 

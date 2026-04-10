@@ -15,7 +15,7 @@ func TestNullString(t *testing.T) {
 	tester := varTester{
 		t:        t,
 		flagName: "value",
-		buildVar: func() (flag.Getter, interface{}) {
+		buildVar: func() (flag.Getter, any) {
 			var value *string
 			return flagx.NullString(&value), &value
 		}}

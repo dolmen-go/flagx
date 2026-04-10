@@ -17,7 +17,7 @@ import (
 // assignable to an element of the slice. If the returned value is a bare
 // string, it will pass through Set() or UnmarshalText() if the type implements
 // it (see above).
-func Map(m interface{}, parseValue func(string) (interface{}, error)) Value {
+func Map(m any, parseValue func(string) (any, error)) Value {
 	v := reflect.ValueOf(m)
 	if v.IsNil() || v.Kind() != reflect.Map {
 		panic("non-nil pointer to a map expected")
@@ -94,6 +94,6 @@ func (m *stringMap) Set(s string) error {
 	return nil
 }
 
-func (m *stringMap) Get() interface{} {
+func (m *stringMap) Get() any {
 	return m.Map.Interface()
 }

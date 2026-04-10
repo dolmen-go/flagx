@@ -12,7 +12,7 @@ func TestTime(t *testing.T) {
 	tester := varTester{
 		t:        t,
 		flagName: "when",
-		buildVar: func() (flag.Getter, interface{}) {
+		buildVar: func() (flag.Getter, any) {
 			var t time.Time
 			return flagx.Time{&t, "2006-01-02T15:04:05", time.Local}, &t
 		}}

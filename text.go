@@ -22,7 +22,7 @@ func (v *textValue) Set(str string) error {
 	return v.value.UnmarshalText([]byte(str))
 }
 
-func (v *textValue) Get() interface{} {
+func (v *textValue) Get() any {
 	return v.value
 }
 

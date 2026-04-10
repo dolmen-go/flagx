@@ -20,7 +20,7 @@ func (v *encodedValue) Set(str string) (err error) {
 	return
 }
 
-func (v *encodedValue) Get() interface{} {
+func (v *encodedValue) Get() any {
 	return *v.value
 }
 

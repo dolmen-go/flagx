@@ -9,7 +9,7 @@ import (
 type Value interface {
 	String() string
 	Set(string) error
-	Get() interface{}
+	Get() any
 }
 
 // Dummy is a [flag.Value] that does nothing.
@@ -19,7 +19,7 @@ func (Dummy) String() string { return "" }
 
 func (Dummy) Set(s string) error { return nil }
 
-func (Dummy) Get() interface{} { return nil }
+func (Dummy) Get() any { return nil }
 
 // stringSetter is the subset of [flag.Value] for setting a value from a string
 type stringSetter interface {
