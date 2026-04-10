@@ -60,16 +60,16 @@ tag.patch:
 ## Bump last non-pushed tag to HEAD
 bump-tag:
 	# Check if tag has already been pushed...
-	t=$$(git tag -l --sort=-v:refname $(tag_prefix)'v*' | head -n1); ! git ls-remote --exit-code --tags origin $$t
-	t=$$(git tag -l --sort=-v:refname $(tag_prefix)'v*' | head -n1); git tag -f -a -m "$$(git tag -l '--format=%(contents)' $$t)" $$t
+	t=$$(git describe --tags --match '$(tag_prefix)v[0-9]*.*.*' | sed -e 's/-[1-9][0-9]*-.*//'); ! git ls-remote --exit-code --tags origin "$$t"
+	t=$$(git describe --tags --match '$(tag_prefix)v[0-9]*.*.*' | sed -e 's/-[1-9][0-9]*-.*//'); git tag -f -a -m "$$(git tag -l '--format=%(contents)' "$$t")" "$$t"
 
 ## Edit the message attached to the last tag
 edit-tag:
 	# Check if tag has already been pushed...
-	t=$$(git tag -l --sort=-v:refname $(tag_prefix)'v*' | head -n1); ! git ls-remote --exit-code --tags origin $$t
-	t=$$(git tag -l --sort=-v:refname $(tag_prefix)'v*' | head -n1); git tag -f -a $$t $$t^{}
+	t=$$(git describe --tags --match '$(tag_prefix)v[0-9]*.*.*' | sed -e 's/-[1-9][0-9]*-.*//'); ! git ls-remote --exit-code --tags origin "$$t"
+	t=$$(git describe --tags --match '$(tag_prefix)v[0-9]*.*.*' | sed -e 's/-[1-9][0-9]*-.*//'); git tag -f -a "$$t" "$$t^{}"
 
 
 ## Dump changelog from Git tags
 changelog:
-	@git tag -l --sort=-v:refname "--format=[%(refname:short)] %(contents)*****************************" $(tag_prefix)'v*'
+	@git tag -l --sort=-v:refname "--format=[%(refname:short)] %(contents)*****************************" '$(tag_prefix)v[0-9]*.*.*'
