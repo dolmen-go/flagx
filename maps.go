@@ -79,13 +79,13 @@ func (m *stringMap) String() string {
 }
 
 func (m *stringMap) Set(s string) error {
-	i := strings.IndexByte(s, '=')
-	if i < 0 {
+	before, after, ok := strings.Cut(s, "=")
+	if !ok {
 		return fmt.Errorf("%q: '=' expected", s)
 	}
-	key := s[:i]
+	key := before
 
-	value, err := m.buildValue(s[i+1:])
+	value, err := m.buildValue(after)
 	if err != nil {
 		return err
 	}
