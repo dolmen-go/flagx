@@ -35,11 +35,11 @@ go-get:
 
 ## Show next minor tag to create: prefix/vX.Y.Z -> prefix/vX.(Y+1).0
 next.minor:
-	@git tag -l --sort=-v:refname $(tag_prefix)'v*' | perl -E '$$_=<>; s/\.([0-9]+)\..*$$/".".($$1+1).".0"/e; print'
+	@{ git describe --tags --match '$(tag_prefix)v*.*.*' --exclude '$(tag_prefix)v*.*.*-*' 2>/dev/null || echo '$(tag_prefix)v0.0.0' ; } | perl -pE 's/-.*//; s/\.([0-9]+)\..*$$/".".($$1+1).".0"/e'
 
 ## Show next patch tag to create: prefix/vX.Y.Z -> prefix/vX.Y.(Z+1)
 next.patch:
-	@git tag -l --sort=-v:refname $(tag_prefix)'v*' | perl -E '$$_=<>; s/\.([0-9]+)$$/".".($$1+1)/e; print'
+	@{ git describe --tags --match '$(tag_prefix)v*.*.*' --exclude '$(tag_prefix)v*.*.*-*' 2>/dev/null || echo '$(tag_prefix)v0.0.0' ; } | perl -pE 's/-.*//; s/\.([0-9]+)$$/".".($$1+1)/e'
 
 ## Tag a new release, increasing the minor version: prefix/vX.Y.Z -> prefix/vX.(Y+1).0
 tag.minor:
