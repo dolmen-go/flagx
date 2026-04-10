@@ -1,3 +1,8 @@
+
+MAKEFLAGS += --warn-undefined-variables
+SHELL := bash
+.SHELLFLAGS := -eu -o pipefail -c
+
 go ?= GO111MODULE=on go
 
 git_root := $(shell git rev-parse --show-toplevel)
