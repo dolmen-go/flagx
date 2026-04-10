@@ -47,12 +47,16 @@ next.patch:
 	@{ git describe --tags --match '$(tag_prefix)v[0-9]*.*.*' --exclude '$(tag_prefix)v*.*.*-*' 2>/dev/null || echo '$(tag_prefix)v0.0.0' ; } | perl -pE 's/-.*//; s/\.([0-9]+)$$/".".($$1+1)/e'
 
 ## Tag a new release, increasing the minor version: prefix/vX.Y.Z -> prefix/vX.(Y+1).0
+tag.minor: V ?= $(shell { git describe --tags --match '$(tag_prefix)v[0-9]*.*.*' --exclude '$(tag_prefix)v*.*.*-*' 2>/dev/null || echo '$(tag_prefix)v0.0.0' ; } | perl -pE 's/\.([0-9]+)\..*$$/".".($$1+1).".0"/e' )
 tag.minor:
-	git tag -a $$({ git describe --tags --match '$(tag_prefix)v[0-9]*.*.*' --exclude '$(tag_prefix)v*.*.*-*' 2>/dev/null || echo '$(tag_prefix)v0.0.0' ; } | perl -pE 's/\.([0-9]+)\..*$$/".".($$1+1).".0"/e') $(go_files_last_commit)
+	[[ '$(V)' = '$(tag_prefix)v'[0-9]*.*.* ]]
+	git tag -a '$(V)' $(go_files_last_commit)
 
 ## Tag a new release, increasing the patch version: prefix/vX.Y.Z -> prefix/vX.Y.(Z+1)
+tag.patch: V ?= $(shell { git describe --tags --match '$(tag_prefix)v[0-9]*.*.*' --exclude '$(tag_prefix)v*.*.*-*' 2>/dev/null || echo '$(tag_prefix)v0.0.0' ; } | perl -pE 's/-.*//; s/\.([0-9]+)$$/".".($$1+1)/e')
 tag.patch:
-	git tag -a $$({ git describe --tags --match '$(tag_prefix)v[0-9]*.*.*' --exclude '$(tag_prefix)v*.*.*-*' 2>/dev/null || echo '$(tag_prefix)v0.0.0' ; } | perl -pE 's/-.*//; s/\.([0-9]+)$$/".".($$1+1)/e') $(go_files_last_commit)
+	[[ '$(V)' = '$(tag_prefix)v'[0-9]*.*.* ]]
+	git tag -a '$(V)' $(go_files_last_commit)
 
 
 .PHONY: bump-tag bump-tag-HEAD edit-tag changelog
