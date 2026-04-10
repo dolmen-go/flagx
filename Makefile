@@ -25,7 +25,9 @@ help: $(MAKEFILE_LIST)
 
 .PHONY: go-version go-get
 
-go_files = go.mod go.sum $(shell $(go) list -f '{{$$Dir := .Dir}}{{range .GoFiles}}{{$$Dir}}/{{.}} {{end}}' ./...)
+# Go sources that matters to downstream.
+# Note that Go test files or testdata is not included. Makefile or README.md aren't either.
+go_files = go.mod go.sum $(shell $(go) list -f '{{$$Dir := .Dir}}{{range .GoFiles}}{{$$Dir}}/{{.}} {{end}}{{range .IgnoredGoFiles}}{{$$Dir}}/{{.}} {{end}}{{range .EmbedFiles}}{{$$Dir}}/{{.}} {{end}}' ./...)
 go_files_last_commit = $(shell git log -1 --format=%H -- $(go_files))
 
 ## Show module version as expected by the Go toolchain
