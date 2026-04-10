@@ -56,7 +56,7 @@ func (is IntSlice) Get() interface{} {
 // it (see above).
 func Slice(sl interface{}, separator string, parse func(string) (interface{}, error)) Value {
 	v := reflect.ValueOf(sl)
-	if v.Type().Kind() != reflect.Ptr {
+	if v.Type().Kind() != reflect.Pointer {
 		panic("pointer expected")
 	}
 	if v.IsNil() {

@@ -26,7 +26,7 @@ func (tester *varTester) CheckParse(args []string, expected interface{}) {
 	var kind reflect.Kind
 	if pvalue != nil {
 		kind = reflect.TypeOf(pvalue).Kind()
-		if kind != reflect.Ptr && kind != reflect.Map {
+		if kind != reflect.Pointer && kind != reflect.Map {
 			panic("varBuilder must return a pointer")
 		}
 	}
@@ -46,7 +46,7 @@ func (tester *varTester) CheckParse(args []string, expected interface{}) {
 	// Dereference pvalue
 	var value interface{}
 	switch kind {
-	case reflect.Ptr:
+	case reflect.Pointer:
 		value = reflect.ValueOf(pvalue).Elem().Interface()
 	case reflect.Map:
 		value = pvalue
@@ -68,7 +68,7 @@ func (tester *varTester) CheckParse(args []string, expected interface{}) {
 
 func (tester *varTester) CheckHelp() {
 	flagValue, pvalue := tester.buildVar()
-	if pvalue != nil && reflect.TypeOf(pvalue).Kind() != reflect.Ptr {
+	if pvalue != nil && reflect.TypeOf(pvalue).Kind() != reflect.Pointer {
 		panic("varBuilder must return a pointer")
 	}
 
