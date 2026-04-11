@@ -38,7 +38,7 @@ go-version: $(go_files) LICENSE
 go-get:
 	@echo $(go) get $(shell $(go) list .)@$(shell $(MAKE) -f $(firstword $(MAKEFILE_LIST)) "go=$(go)" go-version)
 
-.PHONY: next.minor next.patch tag.minor tag.patch
+.PHONY: next.minor next.patch tag.minor tag.patch tag.V
 
 ## Show next minor tag to create: prefix/vX.Y.Z -> prefix/vX.(Y+1).0
 next.minor:
@@ -50,16 +50,16 @@ next.patch:
 
 ## Tag a new release, increasing the minor version: prefix/vX.Y.Z -> prefix/vX.(Y+1).0
 tag.minor: V ?= $(shell { git describe --tags --match '$(tag_prefix)v[0-9]*.*.*' --exclude '$(tag_prefix)v*.*.*-*' 2>/dev/null || echo '$(tag_prefix)v0.0.0' ; } | perl -pE 's/\.([0-9]+)\..*$$/".".($$1+1).".0"/e' )
-tag.minor: V := $(tag_prefix)$(subst $(tag_prefix),,$(V))# add prefix if missing
-tag.minor:
-	[[ '$(V)' = '$(tag_prefix)v'[0-9]*.*.* ]]
-	git tag -a '$(V)' $(go_files_last_commit)
+tag.minor: tag.V
 
 ## Tag a new release, increasing the patch version: prefix/vX.Y.Z -> prefix/vX.Y.(Z+1)
 tag.patch: V ?= $(shell { git describe --tags --match '$(tag_prefix)v[0-9]*.*.*' --exclude '$(tag_prefix)v*.*.*-*' 2>/dev/null || echo '$(tag_prefix)v0.0.0' ; } | perl -pE 's/-.*//; s/\.([0-9]+)$$/".".($$1+1)/e')
-tag.patch: V := $(tag_prefix)$(subst $(tag_prefix),,$(V))# add prefix if missing
-tag.patch:
-	[[ '$(V)' = '$(tag_prefix)v'[0-9]*.*.* ]]
+tag.patch: tag.V
+
+## Tag a new release via V variable
+tag.V: $(eval V := $(tag_prefix)$(subst $(tag_prefix),,$(V)))  # add prefix if missing (wrap with eval as workaround for MacOS old GNU Make 3.81)
+tag.V:
+	[[ '$(V)' = '$(tag_prefix)v'[0-9]*.[0-9]*.[0-9]* ]]
 	git tag -a '$(V)' $(go_files_last_commit)
 
 
