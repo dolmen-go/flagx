@@ -87,3 +87,9 @@ edit-tag:
 ## Dump changelog from Git tags
 changelog:
 	@git tag -l --sort=-v:refname "--format=[%(refname:short)] %(contents)*****************************" '$(tag_prefix)v[0-9]*.*.*'
+
+.PHONY: go-test-all
+
+## Test all packages from all Go modules
+go-test-all:
+	@find . -name 'go.mod' | sed 's/\/go.mod$$//' | while read p; do go test -C "$$p" ./...; done
