@@ -32,7 +32,7 @@ go_files_last_commit = $(shell git log -1 --format=%H -- $(go_files) LICENSE)
 
 ## Show module version as expected by the Go toolchain
 go-version: $(go_files) LICENSE
-	@{ git describe --tags --match '$(tag_prefix)v[0-9]*.*.*' --exclude '$(tag_prefix)v*.*.*-*' --exact-match 2>/dev/null $(shell git log -1 --format=%H -- $^ ) || TZ=UTC git log -1 '--date=format-local:%Y%m%d%H%M%S' --abbrev=12 '--pretty=tformat:%(describe:tags,match=$(tag_prefix)v[0-9]*.*.*,exclude=$(tag_prefix)v*.*.*-*,abbrev=0)-%cd-%h' $^ | perl -pE 's/(\d+)(?=-)/$$1+1/e' ; } | sed -e 's!.*/!!;s!^-!v0.0.0-!'
+	@{ git describe --tags --match '$(tag_prefix)v[0-9]*.*.*' --exclude '$(tag_prefix)v*.*.*-*' --exact-match 2>/dev/null $(shell git log -1 --format=%H -- $^ ) || TZ=UTC git log -1 '--date=format-local:%Y%m%d%H%M%S' --abbrev=12 '--pretty=tformat:%(describe:tags,match=$(tag_prefix)v[0-9]*.*.*,exclude=$(tag_prefix)v*.*.*-*,abbrev=0)-0.%cd-%h' $^ | perl -pE 's/(\d+)(?=-)/$$1+1/e' ; } | sed -e 's!.*/!!;s!^-!v0.0.0-!'
 
 ## Show "go get" command to upgrade the module in a downstream project
 go-get:
